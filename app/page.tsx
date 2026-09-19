@@ -94,7 +94,7 @@ export default function Home() {
     addEventListener('resize', fitHeadline);
 
     // ---- Web Geometry ----
-    function web(R: number, spokes: number, rings: number, sag: number, animated: boolean, r0 = 0) {
+    function web(R: number, spokes: number, rings: number, sag: number, animated: boolean, r0 = 0, base = 0) {
       const ring = (r: number) => Array.from({ length: spokes }, (_, i) => {
         const a = i / spokes * Math.PI * 2 - Math.PI / 2;
         return [Math.cos(a) * r, Math.sin(a) * r];
@@ -102,7 +102,7 @@ export default function Home() {
       const f = (n: number) => n.toFixed(2);
       const d: string[] = [], delays: number[] = [];
       const inner = ring(r0);
-      ring(R).forEach(([x, y], i) => { d.push(`M${f(inner[i][0])} ${f(inner[i][1])}L${f(x)} ${f(y)}`); delays.push(i * 30); });
+      ring(R).forEach(([x, y], i) => { d.push(`M${f(inner[i][0])} ${f(inner[i][1])}L${f(x)} ${f(y)}`); delays.push(base + i * 30); });
       for (let k = 1; k <= rings; k++) {
         const p = ring(r0 + (R - r0) * Math.pow(k / rings, .92));
         let s = `M${f(p[0][0])} ${f(p[0][1])}`;
@@ -110,12 +110,17 @@ export default function Home() {
           const a = p[i % spokes], b = p[i - 1];
           s += `Q${f((a[0] + b[0]) / 2 * (1 - sag))} ${f((a[1] + b[1]) / 2 * (1 - sag))} ${f(a[0])} ${f(a[1])}`;
         }
-        d.push(s); delays.push(260 + k * 85);
+        d.push(s); delays.push(base + 260 + k * 85);
       }
       return d.map((p, i) => `<path pathLength="1" d="${p}"${animated ? ` style="--d:${delays[i]}ms"` : ''}/>`).join('');
     }
     const bgWebEl = $('#bgWeb');
     if (bgWebEl) bgWebEl.innerHTML = web(100, 14, 9, .34, false);
+
+    // Jaring preloader: digambar dari tepi logo ke luar (r0 = radius awal, samakan dengan lebar logo).
+    // Argumen terakhir = jeda (ms) sebelum jaring mulai, supaya logo muncul duluan.
+    const preWebEl = $('#preWebPaths');
+    if (preWebEl) preWebEl.innerHTML = web(80, 14, 4, .20, true, 40, 350);
 
     // ---- Cursor Trail (peta "bekas kursor" untuk efek intip foto sebelumnya) ----
     // Canvas 2D kecil: kursor "mengecat" putih, lalu pelan-pelan memudar ke hitam.
@@ -460,8 +465,8 @@ export default function Home() {
         return;
       }
 
-      // intro lebih singkat di HP
-      await sleep(isMobile ? 1200 : 1900);
+      // tahan preloader sampai animasi logo + jaring selesai
+      await sleep(2200);
       if (!alive) return;
       fitHeadline();
       pre?.classList.add('done');
@@ -502,8 +507,21 @@ export default function Home() {
     <>
       <div className="pre" id="pre" aria-hidden="true">
         <div className="pre-mark">
-          <div className="pre-web"></div>
-          <div className="pre-hub"></div>
+          <svg className="pre-svg" viewBox="-100 -100 200 200">
+            <defs>
+              <radialGradient id="preHoleFade">
+                <stop offset="0" stopColor="#000" />
+                <stop offset=".8" stopColor="#000" />
+                <stop offset="1" stopColor="#fff" />
+              </radialGradient>
+              {/* Lubang di tengah: garis jaring tidak tampil di area logo (hitam = tersembunyi) */}
+              <mask id="preHole" maskUnits="userSpaceOnUse" x="-300" y="-300" width="600" height="600">
+                <rect x="-300" y="-300" width="600" height="600" fill="#fff" />
+                <circle r="46" fill="url(#preHoleFade)" />
+              </mask>
+            </defs>
+            <g id="preWebPaths" mask="url(#preHole)"></g>
+          </svg>
           <div className="pre-logo"></div>
         </div>
       </div>
@@ -559,6 +577,7 @@ export default function Home() {
           <canvas id="gl"></canvas>
           <img className="fb face" id="fbFace" alt="" />
           <img className="fb mask" id="fbMask" alt="" />
+          <span className="hint" id="hint">Ketuk untuk ganti, geser untuk mengintip</span>
         </div>
       </main>
     </>

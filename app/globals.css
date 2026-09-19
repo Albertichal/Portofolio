@@ -235,31 +235,31 @@ h1 span {
 .c-tr {
     top: 8px;
     right: 8px;
-    --w: 200px;
+    --w: 76px;
 }
 
 .c-br {
     bottom: 14px;
     right: 10px;
-    --w: 100px;
+    --w: 64px;
 }
 
 .c-bl {
     bottom: 22px;
     left: 12px;
-    --w: 150px;
+    --w: 56px;
 }
 
 .c-ml {
     top: 42%;
     left: 10px;
-    --w: 150px;
+    --w: 48px;
 }
 
 .c-mr {
     top: 24%;
     right: 10px;
-    --w: px;
+    --w: 44px;
 }
 
 
@@ -359,56 +359,49 @@ h1 span {
     aspect-ratio: 1/1;
 }
 
-.pre-web {
+
+/* Jaring buatan kode: digambar dari tengah (tepi logo) ke luar */
+
+.pre-svg {
     position: absolute;
     inset: 0;
-    background: url("/assets/web.webp") center/contain no-repeat;
-    -webkit-mask: radial-gradient(closest-side, #000 62%, transparent 100%) center/0% 0% no-repeat;
-    mask: radial-gradient(closest-side, #000 62%, transparent 100%) center/0% 0% no-repeat;
-    opacity: .9;
-    transform: rotate(-14deg) scale(.9);
-    animation: webIn 1.15s cubic-bezier(.3, .6, .2, 1) .1s forwards;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
 }
 
-@keyframes webIn {
+.pre-svg path {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw .75s cubic-bezier(.6, .05, .2, 1) forwards;
+    animation-delay: var(--d, 0ms);
+}
+
+@keyframes draw {
     to {
-        -webkit-mask-size: 260% 260%;
-        mask-size: 260% 260%;
-        transform: rotate(0deg) scale(1);
+        stroke-dashoffset: 0
     }
 }
 
-.pre-hub {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 48%;
-    aspect-ratio: 1/1;
-    translate: -50% -50%;
-    border-radius: 50%;
-    /* Mengubah background hub menjadi transparan sepenuhnya agar kotak hitam di belakang logo hilang */
-    background: transparent;
-    opacity: 0;
-    animation: fadeIn .5s ease .75s forwards;
-}
+
+/* Logo muncul duluan, di atas jaring */
 
 .pre-logo {
     position: absolute;
     left: 50%;
-    top: 50%;
-    width: 80%;
+    top: 52%;
+    width: 44%;
     aspect-ratio: 520/475;
     translate: -50% -58%;
     background: url("/assets/logo.png") center/contain no-repeat;
     opacity: 0;
     scale: .8;
-    animation: logoIn .7s cubic-bezier(.2, .8, .2, 1) .85s forwards;
-}
-
-@keyframes fadeIn {
-    to {
-        opacity: 1
-    }
+    animation: logoIn .7s cubic-bezier(.2, .8, .2, 1) .1s forwards;
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
 }
 
 @keyframes logoIn {
