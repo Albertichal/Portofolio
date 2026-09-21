@@ -529,13 +529,16 @@ export default function Home() {
       <main className="hero">
 
         <div className="copy">
-          <p className="subtitle">HELLO WORLD, im Software Engineer</p>
-          <h1 style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}>
-            <span>M.Einstein</span>
-            <span>Yudhistira</span>
-          </h1>
-          <p className="lede">Build robust web apps from the database core to the frontend interface</p>
-        </div>
+  <p className="subtitle">HELLO WORLD, im Software Engineer</p>
+  <h1 style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '16px' }}>
+    <span>M.Einstein</span>
+    <span>Yudhistira</span>
+  </h1>
+  <div style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '16px', opacity: 0.9 }}>
+    A.K.A ALBERTICHAL
+  </div>
+  <p className="lede">Build robust web apps from the database core to the frontend interface</p>
+</div>
 
         <div className="interactive-corner c-tr" title="Tarik dan geser aku!">
           <div className="cw" style={{ '--dur': '2s', '--del': '0s', '--dir': 'normal', '--wr': '0deg', '--sx': '52%', '--sy': '50%', '--rot': '0deg' } as React.CSSProperties}>
@@ -577,7 +580,6 @@ export default function Home() {
           <canvas id="gl"></canvas>
           <img className="fb face" id="fbFace" alt="" />
           <img className="fb mask" id="fbMask" alt="" />
-          <span className="hint" id="hint">Ketuk untuk ganti, geser untuk mengintip</span>
         </div>
       </main>
     </>

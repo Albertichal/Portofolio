@@ -1,438 +1,429 @@
-:root {
-    color-scheme: dark;
-    --paper: #08080a;
-    --ink: #f4f4f6;
-    --line: rgba(255, 255, 255, .14);
-    --spot: #1c1c21;
-    --display: 'Big Shoulders Display', 'Oswald', 'Arial Narrow', Impact, sans-serif;
-    --text: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0
-}
-
-html {
-    background: var(--paper)
-}
-
-body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--text);
-    min-height: 100vh;
-    min-height: 100svh;
-    overflow-x: hidden;
-    -webkit-text-size-adjust: 100%;
-}
-
-.hero {
-    position: relative;
-    min-height: 100vh;
-    min-height: 100svh;
-    overflow: hidden;
-    isolation: isolate;
-}
-
-.bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 18px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 5;
-}
-
-.copy {
-    position: relative;
-    z-index: 4;
-    padding: 64px 20px 0;
-    /* FIX: kotak .copy full-width dan menutupi bagian atas stage (kepala/rambut).
+                                 :root {
+                                    color-scheme: dark;
+                                    --paper: #08080a;
+                                    --ink: #f4f4f6;
+                                    --line: rgba(255, 255, 255, .14);
+                                    --spot: #1c1c21;
+                                    --display: 'Big Shoulders Display', 'Oswald', 'Arial Narrow', Impact, sans-serif;
+                                    --text: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+                                }
+                                
+                                * {
+                                    box-sizing: border-box;
+                                    margin: 0;
+                                    padding: 0
+                                }
+                                
+                                html {
+                                    background: var(--paper)
+                                }
+                                
+                                body {
+                                    background: var(--paper);
+                                    color: var(--ink);
+                                    font-family: var(--text);
+                                    min-height: 100vh;
+                                    min-height: 100svh;
+                                    overflow-x: hidden;
+                                    -webkit-text-size-adjust: 100%;
+                                }
+                                
+                                .hero {
+                                    position: relative;
+                                    min-height: 100vh;
+                                    min-height: 100svh;
+                                    overflow: hidden;
+                                    isolation: isolate;
+                                }
+                                
+                                .bar {
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    padding: 18px 20px;
+                                    font-size: 13px;
+                                    font-weight: 600;
+                                    z-index: 5;
+                                }
+                                
+                                .copy {
+                                    position: relative;
+                                    z-index: 4;
+                                    padding: 64px 20px 0;
+                                    /* FIX: kotak .copy full-width dan menutupi bagian atas stage (kepala/rambut).
        Tanpa ini, pointermove di area itu tidak sampai ke #stage. */
-    pointer-events: none;
-}
-
-.subtitle {
-    font-size: .8rem;
-    letter-spacing: .05em;
-    margin-bottom: .4rem;
-    opacity: .85;
-    font-weight: 500;
-}
-
-h1 {
-    font-family: var(--display);
-    font-weight: 900;
-    font-size: clamp(72px, 25.5vw, 190px);
-    line-height: .8;
-    letter-spacing: -.01em;
-    text-transform: uppercase;
-}
-
-h1 span {
-    display: block;
-    width: max-content
-}
-
-.lede {
-    margin-top: 12px;
-    max-width: 38ch;
-    font-size: 13px;
-    line-height: 1.45;
-}
-
-
-/* Portrait stage */
-
-.stage {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    translate: -50% 0;
-    width: min(122vw, 80svh);
-    aspect-ratio: 1/1;
-    z-index: 1;
-    isolation: isolate;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    /* none = jari yang digeser di foto tidak men-scroll halaman, jadi efek intip bisa jalan */
-    touch-action: none;
-}
-
-.stage:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: -2px
-}
-
-.stage::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 3%;
-    width: 84%;
-    aspect-ratio: 1/1;
-    translate: -50% 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 50% 40%, var(--spot) 0%, #000 70%);
-    z-index: -2;
-}
-
-.stage::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(90deg, var(--paper) 0, transparent 26%, transparent 74%, var(--paper) 100%);
-}
-
-.web {
-    position: absolute;
-    left: 50%;
-    top: 44%;
-    width: 200%;
-    aspect-ratio: 1/1;
-    translate: -50% -50%;
-    z-index: -1;
-    pointer-events: none;
-    overflow: visible;
-    -webkit-mask-image: radial-gradient(closest-side, #000 42%, transparent 100%);
-    mask-image: radial-gradient(closest-side, #000 42%, transparent 100%);
-}
-
-.web path {
-    fill: none;
-    stroke: var(--line);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-}
-
-#gl,
-.fb {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-#gl {
-    opacity: 0
-}
-
-.fb {
-    display: none;
-    transition: opacity .6s ease
-}
-
-.nogl #gl {
-    display: none
-}
-
-.nogl .fb {
-    display: block
-}
-
-.nogl .fb.mask {
-    opacity: 0
-}
-
-.nogl.is-mask .fb.mask {
-    opacity: 1
-}
-
-.nogl.is-mask .fb.face {
-    opacity: 0
-}
-
-.hint {
-    position: absolute;
-    left: 50%;
-    bottom: 1.4%;
-    translate: -50% 0;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .04em;
-    color: #fff;
-    z-index: 2;
-    opacity: .78;
-    pointer-events: none;
-    transition: opacity .4s ease;
-    white-space: nowrap;
-}
-
-.hint.gone {
-    opacity: 0
-}
-
-
-/* Interactive Corner Elements */
-
-.interactive-corner {
-    position: absolute;
-    z-index: 6;
-    width: var(--w, 100px);
-    aspect-ratio: 1/1;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    will-change: transform;
-}
-
-.interactive-corner:active {
-    cursor: grabbing;
-}
-
-
-/* MOBILE: kelima jaring tampil, ukurannya kecil supaya tidak menutupi teks/foto.
+                                    pointer-events: none;
+                                }
+                                
+                                .subtitle {
+                                    font-size: .8rem;
+                                    letter-spacing: .05em;
+                                    margin-bottom: .4rem;
+                                    opacity: .85;
+                                    font-weight: 500;
+                                }
+                                
+                                h1 {
+                                    font-family: var(--display);
+                                    font-weight: 900;
+                                    font-size: clamp(72px, 25.5vw, 190px);
+                                    line-height: .8;
+                                    letter-spacing: -.01em;
+                                    text-transform: uppercase;
+                                }
+                                
+                                h1 span {
+                                    display: block;
+                                    width: max-content
+                                }
+                                
+                                .lede {
+                                    margin-top: 12px;
+                                    max-width: 38ch;
+                                    font-size: 13px;
+                                    line-height: 1.45;
+                                }
+                                /* Portrait stage */
+                                
+                                .stage {
+                                    position: absolute;
+                                    left: 50%;
+                                    bottom: 0;
+                                    translate: -50% 0;
+                                    width: min(122vw, 80svh);
+                                    aspect-ratio: 1/1;
+                                    z-index: 1;
+                                    isolation: isolate;
+                                    cursor: pointer;
+                                    -webkit-tap-highlight-color: transparent;
+                                    /* none = jari yang digeser di foto tidak men-scroll halaman, jadi efek intip bisa jalan */
+                                    touch-action: none;
+                                }
+                                
+                                .stage:focus-visible {
+                                    outline: 2px solid var(--ink);
+                                    outline-offset: -2px
+                                }
+                                
+                                .stage::before {
+                                    content: "";
+                                    position: absolute;
+                                    left: 50%;
+                                    top: 3%;
+                                    width: 84%;
+                                    aspect-ratio: 1/1;
+                                    translate: -50% 0;
+                                    border-radius: 50%;
+                                    background: radial-gradient(circle at 50% 40%, var(--spot) 0%, #000 70%);
+                                    z-index: -2;
+                                }
+                                
+                                .stage::after {
+                                    content: "";
+                                    position: absolute;
+                                    inset: 0;
+                                    z-index: 1;
+                                    pointer-events: none;
+                                    background: linear-gradient(90deg, var(--paper) 0, transparent 26%, transparent 74%, var(--paper) 100%);
+                                }
+                                
+                                .web {
+                                    position: absolute;
+                                    left: 50%;
+                                    top: 44%;
+                                    width: 200%;
+                                    aspect-ratio: 1/1;
+                                    translate: -50% -50%;
+                                    z-index: -1;
+                                    pointer-events: none;
+                                    overflow: visible;
+                                    -webkit-mask-image: radial-gradient(closest-side, #000 42%, transparent 100%);
+                                    mask-image: radial-gradient(closest-side, #000 42%, transparent 100%);
+                                }
+                                
+                                .web path {
+                                    fill: none;
+                                    stroke: var(--line);
+                                    stroke-width: 1;
+                                    vector-effect: non-scaling-stroke;
+                                }
+                                
+                                #gl,
+                                .fb {
+                                    position: absolute;
+                                    inset: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    display: block;
+                                }
+                                
+                                #gl {
+                                    opacity: 0
+                                }
+                                
+                                .fb {
+                                    display: none;
+                                    transition: opacity .6s ease
+                                }
+                                
+                                .nogl #gl {
+                                    display: none
+                                }
+                                
+                                .nogl .fb {
+                                    display: block
+                                }
+                                
+                                .nogl .fb.mask {
+                                    opacity: 0
+                                }
+                                
+                                .nogl.is-mask .fb.mask {
+                                    opacity: 1
+                                }
+                                
+                                .nogl.is-mask .fb.face {
+                                    opacity: 0
+                                }
+                                
+                                .hint {
+                                    position: absolute;
+                                    left: 50%;
+                                    bottom: 1.4%;
+                                    translate: -50% 0;
+                                    font-size: 11px;
+                                    font-weight: 600;
+                                    letter-spacing: .04em;
+                                    color: #fff;
+                                    z-index: 2;
+                                    opacity: .78;
+                                    pointer-events: none;
+                                    transition: opacity .4s ease;
+                                    white-space: nowrap;
+                                }
+                                
+                                .hint.gone {
+                                    opacity: 0
+                                }
+                                /* Interactive Corner Elements */
+                                
+                                .interactive-corner {
+                                    position: absolute;
+                                    z-index: 6;
+                                    width: var(--w, 100px);
+                                    aspect-ratio: 1/1;
+                                    cursor: grab;
+                                    touch-action: none;
+                                    user-select: none;
+                                    -webkit-user-select: none;
+                                    will-change: transform;
+                                }
+                                
+                                .interactive-corner:active {
+                                    cursor: grabbing;
+                                }
+                                /* MOBILE: kelima jaring tampil, ukurannya kecil supaya tidak menutupi teks/foto.
    Angka top/left/right bisa disesuaikan kalau ada yang menimpa teks. */
-
-.c-tr {
-    top: 8px;
-    right: 8px;
-    --w: 76px;
-}
-
-.c-br {
-    bottom: 14px;
-    right: 10px;
-    --w: 64px;
-}
-
-.c-bl {
-    bottom: 22px;
-    left: 12px;
-    --w: 56px;
-}
-
-.c-ml {
-    top: 42%;
-    left: 10px;
-    --w: 48px;
-}
-
-.c-mr {
-    top: 24%;
-    right: 10px;
-    --w: 44px;
-}
-
-
-/* DESKTOP: ukuran penuh */
-
-@media (min-width:900px) {
-    .c-tr {
-        top: 16px;
-        right: 16px;
-        --w: 300px;
-    }
-    .c-br {
-        bottom: 20px;
-        right: 20px;
-        --w: 250px;
-    }
-    .c-bl {
-        bottom: 28px;
-        left: 6vw;
-        --w: 130px;
-    }
-    .c-ml {
-        top: 56%;
-        left: 3vw;
-        --w: 96px;
-    }
-    .c-mr {
-        top: 44%;
-        right: 14px;
-        --w: 88px;
-    }
-}
-
-.cw {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    transform-origin: 50% 50%;
-    animation: sway var(--dur, 7s) ease-in-out var(--del, 0s) infinite var(--dir, normal);
-}
-
-.cw-web,
-.cw-spider {
-    position: absolute;
-    background: center/contain no-repeat;
-}
-
-.cw-web {
-    inset: 0;
-    rotate: var(--wr, 0deg);
-    background-image: url("/assets/web.webp");
-    opacity: .5;
-}
-
-.cw-spider {
-    width: var(--ss, 60%);
-    aspect-ratio: 420/516;
-    left: var(--sx, 50%);
-    top: var(--sy, 50%);
-    translate: -50% -50%;
-    rotate: var(--rot, 0deg);
-    background-image: url("/assets/spider.webp");
-    filter: drop-shadow(0 0 3px #000) drop-shadow(0 0 1px #000);
-}
-
-@keyframes sway {
-    0%,
-    100% {
-        transform: rotate(-4deg);
-    }
-    50% {
-        transform: rotate(4deg);
-    }
-}
-
-
-/* Preloader */
-
-.pre {
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    display: grid;
-    place-items: center;
-    background: var(--paper);
-    transition: opacity .55s ease, visibility 0s linear .55s;
-}
-
-.pre.done {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.pre-mark {
-    position: relative;
-    width: min(88vmin, 520px);
-    aspect-ratio: 1/1;
-}
-
-
-/* Jaring buatan kode: digambar dari tengah (tepi logo) ke luar */
-
-.pre-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
-.pre-svg path {
-    fill: none;
-    stroke: var(--ink);
-    stroke-width: 1.2;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: draw .75s cubic-bezier(.6, .05, .2, 1) forwards;
-    animation-delay: var(--d, 0ms);
-}
-
-@keyframes draw {
-    to {
-        stroke-dashoffset: 0
-    }
-}
-
-
-/* Logo muncul duluan, di atas jaring */
-
-.pre-logo {
-    position: absolute;
-    left: 50%;
-    top: 52%;
-    width: 44%;
-    aspect-ratio: 520/475;
-    translate: -50% -58%;
-    background: url("/assets/logo.png") center/contain no-repeat;
-    opacity: 0;
-    scale: .8;
-    animation: logoIn .7s cubic-bezier(.2, .8, .2, 1) .1s forwards;
-    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
-}
-
-@keyframes logoIn {
-    to {
-        opacity: 1;
-        scale: 1
-    }
-}
-
-@media (min-width:900px) {
-    .copy {
-        padding: 110px 6vw 0
-    }
-    .subtitle {
-        font-size: 1.1rem;
-        margin-bottom: .5rem;
-    }
-    h1 {
-        font-size: clamp(120px, 12vw, 210px)
-    }
-    .lede {
-        margin-top: 1rem;
-        font-size: 17px
-    }
-    .stage {
-        left: auto;
-        right: 3vw;
-        translate: 0 0;
-        width: min(58vw, 104svh);
-    }
-    .bar {
-        padding: 26px 6vw
-    }
-}
+                                
+                                .c-tr {
+                                    /*pojok kanan atas*/
+                                    top: 8px;
+                                    right: 8px;
+                                    --w: 200px;
+                                }
+                                
+                                .c-br {
+                                    /*pojok kanan bawah*/
+                                    bottom: 14px;
+                                    right: 40px;
+                                    --w: 100px;
+                                }
+                                
+                                .c-bl {
+                                    /*pojok kiri bawah*/
+                                    bottom: 22px;
+                                    left: 19px;
+                                    --w: 120px;
+                                }
+                                
+                                .c-ml {
+                                    /*tenagh kiri*/
+                                    top: 42%;
+                                    left: 10px;
+                                    --w: 80px;
+                                }
+                                
+                                .c-mr {
+                                    /*tengah kanan*/
+                                    top: 24%;
+                                    right: 10px;
+                                    --w: 44px;
+                                }
+                                /* DESKTOP: ukuran penuh */
+                                
+                                @media (min-width: 900px) {
+                                    .c-tr {
+                                        top: 16px;
+                                        right: 16px;
+                                        --w: 300px;
+                                    }
+                                    .c-br {
+                                        bottom: 20px;
+                                        right: 20px;
+                                        --w: 250px;
+                                    }
+                                    .c-bl {
+                                        bottom: 28px;
+                                        left: 6vw;
+                                        --w: 130px;
+                                    }
+                                    .c-ml {
+                                        top: 56%;
+                                        left: 3vw;
+                                        --w: 96px;
+                                    }
+                                    .c-mr {
+                                        top: 44%;
+                                        right: 14px;
+                                        --w: 88px;
+                                    }
+                                }
+                                
+                                .cw {
+                                    position: absolute;
+                                    inset: 0;
+                                    pointer-events: none;
+                                    transform-origin: 50% 50%;
+                                    animation: sway var(--dur, 7s) ease-in-out var(--del, 0s) infinite var(--dir, normal);
+                                }
+                                
+                                .cw-web,
+                                .cw-spider {
+                                    position: absolute;
+                                    background: center/contain no-repeat;
+                                }
+                                
+                                .cw-web {
+                                    inset: 0;
+                                    rotate: var(--wr, 0deg);
+                                    background-image: url("/assets/web.webp");
+                                    opacity: .5;
+                                }
+                                
+                                .cw-spider {
+                                    width: var(--ss, 60%);
+                                    aspect-ratio: 420/516;
+                                    left: var(--sx, 50%);
+                                    top: var(--sy, 50%);
+                                    translate: -50% -50%;
+                                    rotate: var(--rot, 0deg);
+                                    background-image: url("/assets/spider.webp");
+                                    filter: drop-shadow(0 0 3px #000) drop-shadow(0 0 1px #000);
+                                }
+                                
+                                @keyframes sway {
+                                    0%,
+                                    100% {
+                                        transform: rotate(-4deg);
+                                    }
+                                    50% {
+                                        transform: rotate(4deg);
+                                    }
+                                }
+                                /* Preloader */
+                                
+                                .pre {
+                                    position: fixed;
+                                    inset: 0;
+                                    z-index: 20;
+                                    display: grid;
+                                    place-items: center;
+                                    background: var(--paper);
+                                    transition: opacity .55s ease, visibility 0s linear .55s;
+                                }
+                                
+                                .pre.done {
+                                    opacity: 0;
+                                    visibility: hidden;
+                                }
+                                
+                                .pre-mark {
+                                    position: relative;
+                                    width: min(88vmin, 520px);
+                                    aspect-ratio: 1/1;
+                                }
+                                /* Jaring buatan kode: digambar dari tengah (tepi logo) ke luar */
+                                
+                                .pre-svg {
+                                    position: absolute;
+                                    inset: 0;
+                                    width: 100%;
+                                    height: 100%;
+                                    overflow: visible;
+                                }
+                                
+                                .pre-svg path {
+                                    fill: none;
+                                    stroke: var(--ink);
+                                    stroke-width: 1.2;
+                                    stroke-linecap: round;
+                                    stroke-dasharray: 1;
+                                    stroke-dashoffset: 1;
+                                    animation: draw .75s cubic-bezier(.6, .05, .2, 1) forwards;
+                                    animation-delay: var(--d, 0ms);
+                                }
+                                
+                                @keyframes draw {
+                                    to {
+                                        stroke-dashoffset: 0
+                                    }
+                                }
+                                /* Logo muncul duluan, di atas jaring */
+                                
+                                .pre-logo {
+                                    position: absolute;
+                                    left: 50%;
+                                    top: 52%;
+                                    width: 44%;
+                                    aspect-ratio: 520/475;
+                                    translate: -50% -58%;
+                                    background: url("/assets/logo.png") center/contain no-repeat;
+                                    opacity: 0;
+                                    scale: .8;
+                                    animation: logoIn .7s cubic-bezier(.2, .8, .2, 1) .1s forwards;
+                                    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.4));
+                                }
+                                
+                                @keyframes logoIn {
+                                    to {
+                                        opacity: 1;
+                                        scale: 1
+                                    }
+                                }
+                                
+                                @media (min-width:900px) {
+                                    .copy {
+                                        padding: 110px 6vw 0
+                                    }
+                                    .subtitle {
+                                        font-size: 1.1rem;
+                                        margin-bottom: .5rem;
+                                    }
+                                    h1 {
+                                        font-size: clamp(120px, 12vw, 210px)
+                                    }
+                                    .lede {
+                                        margin-top: 1rem;
+                                        font-size: 17px
+                                    }
+                                    .stage {
+                                        left: auto;
+                                        right: 3vw;
+                                        translate: 0 0;
+                                        width: min(58vw, 104svh);
+                                    }
+                                    .bar {
+                                        padding: 26px 6vw
+                                    }
+                                }
