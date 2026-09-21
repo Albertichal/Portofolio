@@ -1,0 +1,57 @@
+/* ===== Transisi Spider-Man memanjat (khusus Climber.tsx) ===== */
+
+.sm {
+    --sm-w: 120px;
+    position: absolute;
+    bottom: 100%;
+    /* menempel di tepi atas slide, tubuh ke arah atas */
+    right: 9vw;
+    width: var(--sm-w);
+    aspect-ratio: 100 / 160;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.sm-thread {
+    position: absolute;
+    left: 50%;
+    bottom: 70%;
+    width: 2px;
+    height: var(--len, 0px);
+    translate: -50% 0;
+    background: linear-gradient(to top, rgba(244, 244, 246, 0.9), rgba(244, 244, 246, 0.55));
+    box-shadow: 0 0 6px rgba(244, 244, 246, 0.35);
+}
+
+.sm-fig {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform-origin: 50% 20%;
+    animation: sm-swing 2.2s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 5px rgba(244, 244, 246, 0.18));
+}
+
+@keyframes sm-swing {
+    from {
+        rotate: -3deg;
+    }
+    to {
+        rotate: 3deg;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sm {
+        display: none;
+    }
+}
+
+@media (max-width: 899px) {
+    .sm {
+        --sm-w: 84px;
+        right: 8vw;
+    }
+}
