@@ -28,12 +28,22 @@ body {
     -webkit-text-size-adjust: 100%;
 }
 
+.hero-wrap {
+    position: relative;
+    /* Ini "jarak aman" sebelum Slide2 muncul. .hero di dalamnya sticky,
+       jadi selama tinggi wrap ini belum habis di-scroll, hero tetap nempel
+       di layar dan tidak gampang ke-scroll tidak sengaja ke page 2.
+       Naikkan (mis. 260vh) supaya makin susah pindah, turunkan (mis. 160vh)
+       supaya lebih gampang. */
+    height: 200vh;
+}
+
 .hero {
     position: sticky;
     top: 0;
     z-index: 1;
-    min-height: 100vh;
-    min-height: 100svh;
+    height: 100vh;
+    height: 100svh;
     overflow: hidden;
     isolation: isolate;
 }

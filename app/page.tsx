@@ -438,7 +438,7 @@ export default function Home() {
     let trailRaf = 0, lastT = 0;
     // Seberapa jauh foto bergeser mengikuti kursor (satuan: fraksi lebar foto).
     // Naikkan untuk gerak lebih terasa, turunkan untuk lebih halus.
-    const SHIFT = isMobile ? .05 : .08;
+    const SHIFT = isMobile ? .015 : .02;
     let tShiftX = 0, tShiftY = 0;
 
     function trailLoop(now: number) {
@@ -604,62 +604,64 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="hero">
+      <div className="hero-wrap">
+        <main className="hero">
 
-        <div className="copy">
-          <p className="subtitle">HELLO WORLD, im Software Engineer</p>
-          <h1 style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '16px' }}>
-            <span>M.Einstein</span>
-            <span>Yudhistira</span>
-          </h1>
-          <div style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '16px', opacity: 0.9 }}>
-            A.K.A ALBERTICHAL
+          <div className="copy">
+            <p className="subtitle">HELLO WORLD, im Software Engineer</p>
+            <h1 style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '16px' }}>
+              <span>M.Einstein</span>
+              <span>Yudhistira</span>
+            </h1>
+            <div style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '16px', opacity: 0.9 }}>
+              A.K.A ALBERTICHAL
+            </div>
+            <p className="lede">Build robust web apps from the database core to the frontend interface</p>
           </div>
-          <p className="lede">Build robust web apps from the database core to the frontend interface</p>
-        </div>
 
-        <div className="interactive-corner c-tr" title="Tarik dan geser aku!">
-          <div className="cw" style={{ '--dur': '2s', '--del': '0s', '--dir': 'normal', '--wr': '0deg', '--sx': '52%', '--sy': '50%', '--rot': '0deg' } as React.CSSProperties}>
-            <div className="cw-web"></div>
-            <div className="cw-spider"></div>
+          <div className="interactive-corner c-tr" title="Tarik dan geser aku!">
+            <div className="cw" style={{ '--dur': '2s', '--del': '0s', '--dir': 'normal', '--wr': '0deg', '--sx': '52%', '--sy': '50%', '--rot': '0deg' } as React.CSSProperties}>
+              <div className="cw-web"></div>
+              <div className="cw-spider"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="interactive-corner c-mr" title="Tarik dan geser aku!">
-          <div className="cw" style={{ '--dur': '3s', '--del': '-.5s', '--dir': 'reverse', '--wr': '10deg', '--sx': '50%', '--sy': '50%', '--rot': '-160deg' } as React.CSSProperties}>
-            <div className="cw-web"></div>
-            <div className="cw-spider"></div>
+          <div className="interactive-corner c-mr" title="Tarik dan geser aku!">
+            <div className="cw" style={{ '--dur': '3s', '--del': '-.5s', '--dir': 'reverse', '--wr': '10deg', '--sx': '50%', '--sy': '50%', '--rot': '-160deg' } as React.CSSProperties}>
+              <div className="cw-web"></div>
+              <div className="cw-spider"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="interactive-corner c-ml" title="Tarik dan geser aku!">
-          <div className="cw" style={{ '--dur': '2s', '--del': '-3s', '--dir': 'normal', '--wr': '30deg', '--sx': '50%', '--sy': '50%', '--rot': '25deg', '--ss': '34%' } as React.CSSProperties}>
-            <div className="cw-web"></div>
-            <div className="cw-spider"></div>
+          <div className="interactive-corner c-ml" title="Tarik dan geser aku!">
+            <div className="cw" style={{ '--dur': '2s', '--del': '-3s', '--dir': 'normal', '--wr': '30deg', '--sx': '50%', '--sy': '50%', '--rot': '25deg', '--ss': '34%' } as React.CSSProperties}>
+              <div className="cw-web"></div>
+              <div className="cw-spider"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="interactive-corner c-bl" title="Tarik dan geser aku!">
-          <div className="cw" style={{ '--dur': '6.2s', '--del': '-1s', '--dir': 'reverse', '--wr': '-15deg', '--sx': '48%', '--sy': '52%', '--rot': '-35deg' } as React.CSSProperties}>
-            <div className="cw-web"></div>
-            <div className="cw-spider"></div>
+          <div className="interactive-corner c-bl" title="Tarik dan geser aku!">
+            <div className="cw" style={{ '--dur': '6.2s', '--del': '-1s', '--dir': 'reverse', '--wr': '-15deg', '--sx': '48%', '--sy': '52%', '--rot': '-35deg' } as React.CSSProperties}>
+              <div className="cw-web"></div>
+              <div className="cw-spider"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="interactive-corner c-br" title="Tarik dan geser aku!">
-          <div className="cw" style={{ '--dur': '5.5s', '--del': '-2s', '--dir': 'reverse', '--wr': '20deg', '--sx': '50%', '--sy': '50%', '--rot': '180deg' } as React.CSSProperties}>
-            <div className="cw-web"></div>
-            <div className="cw-spider"></div>
+          <div className="interactive-corner c-br" title="Tarik dan geser aku!">
+            <div className="cw" style={{ '--dur': '5.5s', '--del': '-2s', '--dir': 'reverse', '--wr': '20deg', '--sx': '50%', '--sy': '50%', '--rot': '180deg' } as React.CSSProperties}>
+              <div className="cw-web"></div>
+              <div className="cw-spider"></div>
+            </div>
           </div>
-        </div>
 
-        <div className="stage" id="stage" role="button" tabIndex={0} aria-label="Ganti antara foto bertopeng dan foto wajah">
-          <svg className="web" id="bgWeb" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
-          <canvas id="gl"></canvas>
-          <img className="fb face" id="fbFace" alt="" />
-          <img className="fb mask" id="fbMask" alt="" />
-        </div>
-      </main>
+          <div className="stage" id="stage" role="button" tabIndex={0} aria-label="Ganti antara foto bertopeng dan foto wajah">
+            <svg className="web" id="bgWeb" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+            <canvas id="gl"></canvas>
+            <img className="fb face" id="fbFace" alt="" />
+            <img className="fb mask" id="fbMask" alt="" />
+          </div>
+        </main>
+      </div>
       <Slide2 />
       <Slide3 />
     </>
