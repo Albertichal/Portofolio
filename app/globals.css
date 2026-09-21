@@ -35,7 +35,7 @@ body {
        di layar dan tidak gampang ke-scroll tidak sengaja ke page 2.
        Naikkan (mis. 260vh) supaya makin susah pindah, turunkan (mis. 160vh)
        supaya lebih gampang. */
-    height: 200vh;
+    height: 180vh;
 }
 
 .hero {
