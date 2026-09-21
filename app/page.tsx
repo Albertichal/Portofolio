@@ -55,7 +55,8 @@ export default function Home() {
         startX = e.clientX - currentX;
         startY = e.clientY - currentY;
         el.setPointerCapture(e.pointerId);
-        e.preventDefault();
+        // di HP jangan blokir gesture bawaan, supaya halaman tetap bisa di-scroll
+        if (e.pointerType !== 'touch') e.preventDefault();
       });
 
       el.addEventListener('pointermove', (e: PointerEvent) => {
@@ -188,6 +189,48 @@ export default function Home() {
       shards.length = w;
       return w;
     }
+
+    // ---- Peta alpha foto (hit-test) ----
+    // Dipakai supaya di HP: sentuhan DI LUAR bentuk foto tidak diambil alih,
+    // jadi halaman tetap bisa di-scroll ke Slide 2. Sentuhan DI ATAS foto
+    // tetap menjalankan efek intip seperti biasa.
+    const HT = 128;                 // resolusi peta; kecil sudah cukup
+    const HT_ALPHA = 24;            // ambang alpha (0-255) yang dianggap "ada isinya"
+    let htData: Uint8ClampedArray | null = null;
+
+    function buildHitMap(...imgs: HTMLImageElement[]) {
+      const c = document.createElement('canvas');
+      c.width = c.height = HT;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      if (!x) return;
+      // gabungkan mask + face supaya area yang dipakai kedua foto ikut terhitung
+      imgs.forEach(im => { try { x.drawImage(im, 0, 0, HT, HT); } catch (e) { } });
+      try { htData = x.getImageData(0, 0, HT, HT).data; } catch (e) { htData = null; }
+    }
+
+    // true kalau titik layar ini jatuh di piksel foto yang kelihatan
+    function onPhoto(clientX: number, clientY: number) {
+      if (!stage) return false;
+      if (!htData) return true; // peta gagal dibuat -> pakai perilaku lama
+      const r = stage.getBoundingClientRect();
+      const u = (clientX - r.left) / r.width;
+      const v = (clientY - r.top) / r.height;
+      if (u < 0 || u > 1 || v < 0 || v > 1) return false;
+      const px = Math.min(HT - 1, Math.max(0, Math.floor(u * HT)));
+      const py = Math.min(HT - 1, Math.max(0, Math.floor(v * HT)));
+      // cek 3x3 biar tepi foto tetap enak disentuh dengan jari
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const qx = px + dx, qy = py + dy;
+          if (qx < 0 || qy < 0 || qx >= HT || qy >= HT) continue;
+          if (htData[(qy * HT + qx) * 4 + 3] > HT_ALPHA) return true;
+        }
+      }
+      return false;
+    }
+
+    // true selama jari yang sedang menyentuh layar memang mendarat di atas foto
+    let touchOnPhoto = false;
 
     // ---- WebGL & Dissolve Effect ----
     const VERT = `attribute vec2 a; varying vec2 vUv;
@@ -367,8 +410,13 @@ export default function Home() {
       }, 4500 + Math.random() * 3500);
     }
 
-    function toggle() {
+    function toggle(e?: Event) {
       if (!ready || busy) return;
+      // klik/tap di luar bentuk foto: abaikan, biar area kosong terasa "bukan tombol"
+      if (e && 'clientX' in (e as MouseEvent)) {
+        const me = e as MouseEvent;
+        if (!onPhoto(me.clientX, me.clientY)) return;
+      }
       hint?.classList.add('gone');
       if (!gl) { stage?.classList.toggle('is-mask'); return; }
       busy = true;
@@ -378,7 +426,8 @@ export default function Home() {
       tween(reduce ? 0 : 1500, easeInOut, k => { st.p = from + (to - from) * k; draw(); })
         .then(() => { busy = false; if (to === 1) idle(); });
     }
-    stage?.addEventListener('click', toggle);
+    const clickHandler = (e: Event) => toggle(e);
+    stage?.addEventListener('click', clickHandler);
     const keyHandler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
     };
@@ -413,6 +462,11 @@ export default function Home() {
 
     const onMove = (e: PointerEvent) => {
       if (!gl || !ready || reduce || !stage) return;
+      // jari yang mendarat di luar foto: jangan diproses sama sekali,
+      // supaya scroll halaman berjalan normal
+      if (e.pointerType === 'touch' && !touchOnPhoto) return;
+      // mouse: efek hanya aktif saat kursor benar-benar di atas foto
+      if (e.pointerType !== 'touch' && !onPhoto(e.clientX, e.clientY)) { releasePt(); return; }
       const r = stage.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width * TR;
       const y = (e.clientY - r.top) / r.height * TR;
@@ -439,11 +493,29 @@ export default function Home() {
     stage?.addEventListener('pointerleave', releasePt);
     stage?.addEventListener('pointercancel', releasePt);
 
+    // ---- Touch: tentukan sekali di awal, jari ini di atas foto atau bukan ----
+    // CSS memberi .stage touch-action: pan-y di mobile, jadi scroll baru benar-benar
+    // diblokir kalau kita preventDefault() di touchmove (hanya saat di atas foto).
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      touchOnPhoto = !!t && ready && !reduce && onPhoto(t.clientX, t.clientY);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (touchOnPhoto && e.cancelable) e.preventDefault();
+    };
+    const onTouchEnd = () => { touchOnPhoto = false; releasePt(); };
+    stage?.addEventListener('touchstart', onTouchStart, { passive: true });
+    stage?.addEventListener('touchmove', onTouchMove, { passive: false });
+    stage?.addEventListener('touchend', onTouchEnd);
+    stage?.addEventListener('touchcancel', onTouchEnd);
+
     async function main() {
       let imgs;
       try { imgs = await Promise.all([loadImg(SRC.mask), loadImg(SRC.face)]); }
       catch (e) { pre?.classList.add('done'); return; }
       if (!alive) return;
+
+      buildHitMap(imgs[0], imgs[1]);
 
       let ok = false;
       try { ok = initGL(imgs[0], imgs[1]); } catch (e) { ok = false; }
@@ -495,13 +567,17 @@ export default function Home() {
       alive = false;
       cancelAnimationFrame(trailRaf);
       clearTimeout(idleTimer as number);
-      stage?.removeEventListener('click', toggle);
+      stage?.removeEventListener('click', clickHandler);
       stage?.removeEventListener('keydown', keyHandler);
       stage?.removeEventListener('pointermove', onMove);
       stage?.removeEventListener('pointerdown', resetPt);
       stage?.removeEventListener('pointerup', resetPt);
       stage?.removeEventListener('pointerleave', releasePt);
       stage?.removeEventListener('pointercancel', releasePt);
+      stage?.removeEventListener('touchstart', onTouchStart);
+      stage?.removeEventListener('touchmove', onTouchMove);
+      stage?.removeEventListener('touchend', onTouchEnd);
+      stage?.removeEventListener('touchcancel', onTouchEnd);
     };
   }, []);
 
