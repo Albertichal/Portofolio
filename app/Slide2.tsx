@@ -29,7 +29,6 @@ const TOOLS: [string, string][] = [
 ];
 
 const STATS: [string, string][] = [
-  ["3.37", "Grade point average"],
   ["10", "Projects shipped"],
 ];
 

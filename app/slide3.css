@@ -1,10 +1,8 @@
-/* ===== Slide 3 / timeline (khusus Slide3.tsx) =====
-   Memakai variabel dari globals.css: --paper, --ink, --line, --display, --text */
+/* ===== Slide 3 / timeline ===== */
 
 .s3 {
     position: relative;
     z-index: 3;
-    /* di atas slide 2 */
     isolation: isolate;
     min-height: 100vh;
     min-height: 100svh;
@@ -17,7 +15,7 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(60% 40% at 78% 8%, rgba(255, 255, 255, 0.06), transparent 62%), radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.6) 100%), #101010;
+    background: radial-gradient( 60% 40% at 78% 8%, rgba(255, 255, 255, 0.06), transparent 62%), radial-gradient( 120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.6) 100%), #101010;
 }
 
 .s3-inner {
@@ -25,7 +23,7 @@
 }
 
 
-/* Judul slide 3 (ukuran diatur JS: useFitTitle; font-size di sini hanya cadangan) */
+/* ===== TITLE ===== */
 
 .s3-title {
     display: flex;
@@ -58,15 +56,17 @@
 }
 
 
-/* Timeline: garis tengah + kartu bergantian */
+/* ===== TIMELINE ===== */
 
 .tl {
     --p: 0px;
-    /* panjang benang yang sudah dilewati (diisi JS) */
     position: relative;
     list-style: none;
     margin-top: clamp(24px, 6vh, 64px);
 }
+
+
+/* ===== RAIL / GARIS TENGAH ===== */
 
 .tl-rail {
     position: absolute;
@@ -95,7 +95,7 @@
 }
 
 
-/* Laba-laba kecil di ujung benang */
+/* ===== SPIDER ===== */
 
 .tl-spider {
     position: absolute;
@@ -104,7 +104,7 @@
     width: 34px;
     height: 34px;
     translate: -50% -50%;
-    filter: drop-shadow(0 0 5px rgba(244, 244, 246, 0.3));
+    filter: drop-shadow( 0 0 5px rgba(244, 244, 246, 0.3));
 }
 
 .tl-spider svg {
@@ -112,7 +112,6 @@
     height: 100%;
     overflow: visible;
     rotate: 180deg;
-    /* kepala ke bawah saat scroll turun */
     transition: rotate 0.35s ease;
 }
 
@@ -142,6 +141,9 @@
     }
 }
 
+
+/* ===== TIMELINE ITEMS ===== */
+
 .tl-item {
     position: relative;
     display: grid;
@@ -155,23 +157,48 @@
     align-self: center;
 }
 
+
+/* ===== YEAR ===== */
+
 .tl-year {
     font-family: var(--display);
     font-weight: 900;
     font-size: clamp(2rem, 3.4vw, 3.4rem);
     line-height: 1;
     opacity: 0.22;
-    transition: opacity 0.35s ease;
+    transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .tl-item.is-active .tl-year {
     opacity: 1;
 }
 
-.tl-main .tl-year {
+
+/*
+  Posisi card tetap berdasarkan kind.
+  Hanya tahun yang dibuat selang-seling.
+*/
+
+
+/* Tahun ganjil: kiri */
+
+.tl-item.tl-year-left .tl-year {
     grid-column: 1;
     justify-self: start;
+    text-align: left;
 }
+
+
+/* Tahun genap: kanan */
+
+.tl-item.tl-year-right .tl-year {
+    grid-column: 3;
+    justify-self: end;
+    text-align: right;
+}
+
+
+/* ===== MAIN CARD ===== */
 
 .tl-main .tl-card {
     grid-column: 2;
@@ -182,16 +209,17 @@
     justify-self: start;
 }
 
+
+/* ===== LEFT CARD ===== */
+
 .tl-left .tl-card {
     grid-column: 1;
     justify-self: end;
     max-width: 22rem;
 }
 
-.tl-left .tl-year {
-    grid-column: 3;
-    justify-self: end;
-}
+
+/* ===== RIGHT CARD ===== */
 
 .tl-right .tl-card {
     grid-column: 3;
@@ -199,13 +227,8 @@
     max-width: 22rem;
 }
 
-.tl-right .tl-year {
-    grid-column: 1;
-    justify-self: start;
-}
 
-
-/* Kartu: kaca gelap dengan sudut kanan bawah terpotong */
+/* ===== CARD ===== */
 
 .tl-card {
     --cut: 26px;
@@ -213,8 +236,7 @@
     isolation: isolate;
     padding: 26px 30px 24px;
     background: rgba(244, 244, 246, 0.16);
-    /* jadi garis tepi */
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+    clip-path: polygon( 0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
     transition: background 0.35s ease;
 }
 
@@ -223,13 +245,16 @@
     position: absolute;
     inset: 1px;
     z-index: -1;
-    background: linear-gradient(135deg, #24242a 0%, #17171b 55%, #131316 100%);
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+    background: linear-gradient( 135deg, #24242a 0%, #17171b 55%, #131316 100%);
+    clip-path: polygon( 0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
 }
 
 .tl-item.is-active .tl-card {
     background: rgba(244, 244, 246, 0.5);
 }
+
+
+/* ===== CARD CONTENT ===== */
 
 .tl-tag {
     font-size: 0.75rem;
@@ -301,6 +326,9 @@
     font-weight: 800;
 }
 
+
+/* ===== MOBILE ===== */
+
 @media (max-width: 899px) {
     .s3-inner {
         padding: 96px 20px 120px;
@@ -322,6 +350,10 @@
     .tl-item>* {
         grid-row: auto;
     }
+    /*
+    Di mobile semua elemen kembali satu kolom.
+    Tahun tetap berada di atas card agar tidak berantakan.
+  */
     .tl-item .tl-year,
     .tl-item .tl-card,
     .tl-item .tl-note {
@@ -331,5 +363,15 @@
     }
     .tl-item .tl-year {
         font-size: 1.6rem;
+    }
+    /*
+    Alternating year hanya berlaku desktop.
+    Mobile dibuat konsisten agar timeline tetap rapi.
+  */
+    .tl-item.tl-year-left .tl-year,
+    .tl-item.tl-year-right .tl-year {
+        grid-column: 1;
+        justify-self: stretch;
+        text-align: left;
     }
 }
