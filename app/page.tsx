@@ -438,7 +438,7 @@ export default function Home() {
     let trailRaf = 0, lastT = 0;
     // Seberapa jauh foto bergeser mengikuti kursor (satuan: fraksi lebar foto).
     // Naikkan untuk gerak lebih terasa, turunkan untuk lebih halus.
-    const SHIFT = isMobile ? .015 : .02;
+    const SHIFT = isMobile ? .05 : .08;
     let tShiftX = 0, tShiftY = 0;
 
     function trailLoop(now: number) {
