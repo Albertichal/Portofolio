@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Slide2 from './Slide2';
 import Slide3 from './Slide3';
+import Slide4 from './Slide4';
 
 export default function Home() {
   useEffect(() => {
@@ -664,6 +665,7 @@ export default function Home() {
       </div>
       <Slide2 />
       <Slide3 />
+      <Slide4 />
     </>
   );
 }

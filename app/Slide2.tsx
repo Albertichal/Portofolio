@@ -5,7 +5,6 @@ import Climber from "./Climber";
 import { useFitTitle } from "./slideUtils";
 import "./slide2.css";
 
-// TEKS SEMENTARA (dari ibnuhakim.id) - ganti sendiri nanti
 const LEDE =
   "Mahasiswa Full Stack Developer. Saya telah membangun aplikasi Laravel yang dipakai sungguhan, dan memakai AI untuk bekerja lebih cerdas — bukan sekadar lebih keras.";
 

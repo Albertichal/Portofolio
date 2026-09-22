@@ -11,7 +11,7 @@
 ## 1. Konsep Project
 
 Portofolio pribadi bertema **Spider-Man**, dibangun dengan **Next.js (App Router) + TypeScript**.
-Formatnya **scroll-based single page** dengan 3 "slide" full-screen yang saling menimpa
+Formatnya **scroll-based single page** dengan 4 "slide" full-screen yang saling menimpa
 (stacking transition) saat di-scroll — bukan carousel/SPA router biasa.
 
 Tone visual: dark mode, tipografi besar/bold ala poster (`Big Shoulders Display` untuk display,
@@ -54,6 +54,9 @@ portfolio/
 │   ├── Slide3.tsx        # SLIDE 3 — Timeline karier/edukasi (2023–2026)
 │   ├── slide3.css         # Style khusus Slide3 (termasuk laba-laba yang jalan di rail timeline)
 │   │
+│   ├── Slide4.tsx        # SLIDE 4 — "Selected Work" (showcase project lain, bukan portofolio ini)
+│   ├── slide4.css        # Style khusus Slide4 (card horizontal-scroll + overlay detail project)
+│   │
 │   ├── Climber.tsx       # Komponen SVG animasi "Spider-Man memanjat benang"
 │   │                     # dipakai sebagai transisi antar slide (dipasang di Slide2 & Slide3)
 │   ├── climber.css       # Style Climber (posisi nempel di tepi atas slide, animasi swing)
@@ -76,10 +79,13 @@ portfolio/
 
 **Catatan penting soal arsitektur:**
 - Semua komponen slide **flat** langsung di dalam `app/`, tidak ada subfolder `components/`.
-- `page.tsx` me-render `<Slide2 />` dan `<Slide3 />` di bagian bawahnya — jadi ketiganya
-  adalah **satu halaman scroll panjang**, bukan route terpisah.
+- `page.tsx` me-render `<Slide2 />`, `<Slide3 />`, dan `<Slide4 />` di bagian bawahnya — jadi
+  keempatnya adalah **satu halaman scroll panjang**, bukan route terpisah.
+  > ⚠️ Perlu dicek manual: pastikan `page.tsx` sudah meng-import & merender `<Slide4 />` — kalau
+  > belum ditambahkan saat Slide4 dibuat, slide ini nggak akan muncul di halaman.
 - `Climber.tsx` adalah komponen bersama (shared) yang dipasang di dalam `Slide2` dan `Slide3`
   sebagai efek transisi, posisinya relatif terhadap `<section>` induknya (pakai `parentElement`).
+  **Slide4 belum memakai `Climber`** (belum ada transisi panjat masuk ke slide ini).
 - `slideUtils.ts` (hook `useFitTitle`) juga shared, dipakai Slide2 & Slide3 untuk auto-sizing judul.
 
 ---
@@ -125,7 +131,30 @@ portfolio/
   (arah `data-dir="up"/"down"` + animasi wiggle kaki saat bergerak).
 - `Climber.tsx` juga dipasang di sini (transisi masuk dari Slide 2 → Slide 3).
 
-### 4.4 Komponen/Utility Bersama
+### 4.4 Slide 4 — "Selected Work" (`Slide4.tsx` + `slide4.css`)
+- Berbeda dari Slide2/3, slide ini **bukan bagian dari cerita "diri sendiri"** tapi showcase
+  **project lain** yang pernah dibuat (di luar portofolio ini sendiri) — data project di array
+  `PROJECTS` (id, name, stack, domain, readme singkat). Gampang ditambah project baru tinggal
+  push item baru ke array ini.
+- Layout: **track horizontal-scroll** (card-card project berjejer ke samping, `scroll-snap`),
+  dengan tombol panah prev/next (`.s4-nav`, hanya muncul di desktop ≥900px; di mobile murni swipe).
+- Klik salah satu card → membuka **overlay detail project** dengan efek "jaring meledak"
+  (`s4-web`, scale dari 0 ke penuh layar) yang originnya persis di titik card yang diklik
+  (dihitung dari `getBoundingClientRect()` saat klik, disimpan sebagai CSS var `--ox`/`--oy`).
+- Overlay berisi: nama project, stack badge (`s4-chip`, dipakai ulang gaya yang sama dengan
+  card), deskripsi (`readme`), dan link keluar (`domain`) yang dibuka di tab baru.
+- UX detail yang sudah ditangani: body scroll di-lock (`overflow: hidden`) selama overlay
+  terbuka, bisa ditutup lewat tombol ✕ atau tombol `Escape`, dan ada fallback
+  `prefers-reduced-motion` (animasi jaring/panel dimatikan, langsung tampil).
+- **Project yang sudah didaftarkan saat ini:**
+  1. **AlbertIchal Portfolio** — project ini sendiri (`albertichal.my.id`), Next.js + TypeScript + WebGL.
+  2. **AlTrack** — aplikasi pencatat workout gym (`altrack.my.id`), Laravel + MySQL, deploy di Railway.
+- `Slide4` **shared component yang dipakai ulang dari sini**: `useFitTitle` (dari `slideUtils.ts`)
+  untuk judul "Selected Work." — sama seperti Slide2/Slide3.
+- **Belum dipakai di Slide4:** komponen `Climber` (belum ada transisi panjat laba-laba masuk ke
+  slide ini, beda dari Slide2→Slide3 yang sudah pakai Climber).
+
+### 4.5 Komponen/Utility Bersama
 - **`Climber.tsx`**: figur Spider-Man SVG sederhana (kaki, badan, kepala+topeng, lengan)
   dengan animasi `<animate>` native SVG (bukan CSS keyframes) untuk gerakan panjat kaki/tangan
   bergantian. Posisi & panjang "benang" (`--len`) dihitung on-scroll berdasarkan jarak section
@@ -148,14 +177,19 @@ kemungkinan masih akan ada polish/estetika lanjutan, bukan perubahan struktural 
 | Slide 1 (Hero) | ✅ Selesai | WebGL + fallback jalan, preloader jalan |
 | Slide 2 (Journey) | ✅ Selesai (konten sementara) | Teks `LEDE` masih placeholder dari situs lain, perlu ditulis ulang |
 | Slide 3 (Timeline) | ✅ Selesai | Data timeline bisa terus ditambah seiring waktu |
-| Climber (transisi) | ✅ Selesai | Dipasang di Slide2 & Slide3 |
-| Responsif mobile | ✅ Sudah ditangani | Banyak logic touch-action khusus supaya scroll tidak "kebajak" oleh elemen interaktif |
+| Slide 4 (Selected Work) | 🆕 Baru ditambahkan | Perlu dicek apakah `page.tsx` sudah merender `<Slide4 />` |
+| Climber (transisi) | ⚠️ Parsial | Dipasang di Slide2 & Slide3, **belum** di Slide4 |
+| Responsif mobile | ✅ Sudah ditangani (Slide1–3) | Slide4 pakai scroll-snap horizontal — belum dikonfirmasi mulus di mobile |
 | `AGENTS.md` | ❓ Belum dikonfirmasi | Kemungkinan bawaan scaffolding, isi belum direview |
 
 **Riwayat perubahan terakhir yang diketahui (dari kode yang dilampirkan):**
 - Implementasi awal Hero dengan WebGL dissolve + hit-map alpha untuk touch handling.
 - Slide2 & Slide3 dengan sistem `Climber` sebagai transisi antar-slide.
 - `useFitTitle` diekstrak jadi hook bersama di `slideUtils.ts`.
+- Project sudah **live/deployed** di **albertichal.my.id**.
+- **[Terbaru]** Ditambahkan `Slide4.tsx` — showcase project lain (bukan portofolio ini) dengan
+  card horizontal-scroll + overlay detail "web burst". Berisi 2 project: portofolio ini sendiri
+  dan **AlTrack** (altrack.my.id).
 
 ---
 
@@ -179,3 +213,9 @@ Saat mau minta bantuan Claude untuk lanjutin/ubah project ini:
 - Teks final untuk `LEDE` di Slide 2 (masih placeholder).
 - Apakah font `Big Shoulders Display` & `Archivo` sudah di-load resmi (mis. via `next/font/google`)
   atau masih mengandalkan fallback sistem — belum terlihat di kode yang dilampirkan.
+- **`page.tsx` perlu dipastikan sudah import & render `<Slide4 />`** setelah `<Slide3 />` —
+  belum dikonfirmasi apakah sudah dilakukan.
+- Apakah Slide4 akan diberi transisi `Climber` juga (konsisten dengan Slide2→Slide3), atau
+  memang sengaja dibuat beda gaya transisinya (overlay "web burst" sendiri sudah jadi ciri khas).
+- Belum ada meta Open Graph/Twitter card di `layout.tsx` (dibahas sebelumnya saat review link
+  live) — kalau ditambah nanti, sekalian dicatat di sini.
