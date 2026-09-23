@@ -1,24 +1,5 @@
 "use client";
 
-// SLIDE 5 — "Let's build something" (ID card lanyard + About statement + Contact)
-// Kartu ID di kiri (desktop) bisa ditarik. Talinya berupa jaring laba-laba
-// (SVG path) yang dihitung ulang tiap frame dari posisi kartu — bukan div
-// yang diputar rotate() — supaya beneran "nempel" ke kartu dan gerakannya
-// gak pernah kebalik arahnya. Titik jangkarnya diukur otomatis sampai ke
-// paling atas section (bukan cuma di atas kartu), jadi keliatan kayak
-// jaring beneran turun dari langit-langit slide.
-//
-// Interaksi kartu beda antara desktop & mobile, dan modenya REAKTIF (pakai
-// matchMedia "change" listener, bukan dicek sekali doang pas mount) — jadi
-// kalau window di-resize atau device di-rotate lewatin breakpoint 900px di
-// tengah sesi, behavior-nya ikut switch tanpa perlu reload halaman:
-//   - Desktop (>=900px): full drag-fisika (gravitasi + tali elastis/Hooke),
-//     pointer capture, touch-action: none biar gak rebutan gesture browser.
-//   - Mobile (<900px): kartu gak di-drag (bakal rebutan sama scroll jari),
-//     tapi tetap interaktif — sekali tap ringan (gerak kecil & cepat) bikin
-//     kartu "kesenggol" lalu spring balik ke posisi diam. touch-action
-//     dibiarin default ("auto") jadi scroll jari lewat area card tetap mulus.
-
 import { useLayoutEffect, useRef } from "react";
 import { useFitTitle } from "./slideUtils";
 import "./slide5.css";
@@ -96,11 +77,8 @@ function Icon({ type }: { type: ContactIcon }) {
     }
 }
 
-// Fallback kalau pengukuran CSS gagal (harusnya gak pernah kepake).
 const DEFAULT_REST_LENGTH = 96;
 
-// Susunan helai yang SENGAJA gak simetris (jarak & lengkungan beda-beda)
-// biar kesannya jaring beneran, bukan pola geometris rapi.
 const SPOKE_FRACS = [-1, -0.6, -0.2, 0.25, 0.65, 1];
 const SPOKE_CURVE = [0.3, 0.42, 0.2, 0.48, 0.32, 0.4];
 const CROSS_FRACS = [0.22, 0.4, 0.6, 0.82];
@@ -182,8 +160,6 @@ export default function Slide5() {
         let REST = DEFAULT_REST_LENGTH;
         let raf = 0;
 
-        let isFlicking = false;
-        let downX = 0, downY = 0, downT = 0;
         let lastPointerX = 0;
         let lastPointerY = 0;
 
@@ -203,9 +179,10 @@ export default function Slide5() {
             web.setAttribute("d", buildWebPath(x, y, REST));
         }
 
+        // Izinkan touch-action: none pada kartu agar sentuhan di HP langsung mendeteksi drag
         function applyTouchAction() {
-            card.style.touchAction = isDesktop ? "none" : "auto";
-            card.style.cursor = isDesktop ? "grab" : "default";
+            card.style.touchAction = "none";
+            card.style.cursor = isDesktop ? "grab" : "pointer";
         }
 
         const GRAVITY = 0.6;
@@ -215,7 +192,7 @@ export default function Slide5() {
         const ZETA_X = 0.6;
         let targetX = 0, targetY = 0;
 
-        function stepDesktop() {
+        function stepPhysics() {
             if (isDragging) {
                 vx += (targetX - currentX) * 0.28;
                 vy += (targetY - currentY) * 0.28;
@@ -237,45 +214,24 @@ export default function Slide5() {
             currentX += vx;
             currentY += vy;
             render(currentX, currentY, isDragging);
-        }
 
-        const TAP_OMEGA = 0.14;
-        const TAP_ZETA = 0.35;
-
-        function stepMobile() {
-            const ax = -(TAP_OMEGA * TAP_OMEGA) * currentX - 2 * TAP_ZETA * TAP_OMEGA * vx;
-            const ay = -(TAP_OMEGA * TAP_OMEGA) * currentY - 2 * TAP_ZETA * TAP_OMEGA * vy;
-            vx += ax;
-            vy += ay;
-            currentX += vx;
-            currentY += vy;
-            render(currentX, currentY, false);
-
-            if (Math.abs(vx) + Math.abs(vy) + Math.abs(currentX) + Math.abs(currentY) < 0.05) {
-                isFlicking = false;
+            // Terus jalankan animasi jika belum benar-benar diam di posisi awal
+            if (isDragging || Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01 || Math.abs(currentX) > 0.01 || Math.abs(currentY) > 0.01) {
+                raf = requestAnimationFrame(stepPhysics);
+            } else {
                 currentX = 0; currentY = 0; vx = 0; vy = 0;
                 render(0, 0, false);
-            }
-        }
-
-        function updatePhysics() {
-            if (isDesktop) {
-                stepDesktop();
-                raf = requestAnimationFrame(updatePhysics);
-            } else if (isFlicking) {
-                stepMobile();
-                if (isFlicking) raf = requestAnimationFrame(updatePhysics);
+                raf = 0;
             }
         }
 
         function startLoop() {
-            if (!raf) raf = requestAnimationFrame(updatePhysics);
+            if (!raf) raf = requestAnimationFrame(stepPhysics);
         }
 
         measure();
         applyTouchAction();
         render(0, 0, false);
-        if (isDesktop) startLoop();
 
         const onResize = () => {
             measure();
@@ -286,24 +242,12 @@ export default function Slide5() {
         const onModeChange = (e: MediaQueryListEvent) => {
             isDesktop = e.matches;
             applyTouchAction();
-            isDragging = false;
-            isFlicking = false;
-            currentX = 0; currentY = 0; vx = 0; vy = 0;
-            render(0, 0, false);
-            cancelAnimationFrame(raf);
-            raf = 0;
-            if (isDesktop) startLoop();
         };
         mq.addEventListener("change", onModeChange);
 
         const onDown = (e: PointerEvent) => {
             lastPointerX = e.clientX;
             lastPointerY = e.clientY;
-            downX = e.clientX;
-            downY = e.clientY;
-            downT = performance.now();
-
-            if (!isDesktop) return;
 
             isDragging = true;
             targetX = currentX;
@@ -315,7 +259,7 @@ export default function Slide5() {
         };
 
         const onMove = (e: PointerEvent) => {
-            if (!isDesktop || !isDragging) return;
+            if (!isDragging) return;
 
             const deltaX = e.clientX - lastPointerX;
             const deltaY = e.clientY - lastPointerY;
@@ -325,27 +269,16 @@ export default function Slide5() {
 
             targetX = Math.max(-260, Math.min(260, targetX + deltaX));
             targetY = Math.max(-350, Math.min(420, targetY + deltaY));
+            
+            startLoop();
         };
 
         const onUp = (e: PointerEvent) => {
-            if (isDesktop) {
-                if (!isDragging) return;
-                isDragging = false;
-                card.style.cursor = "grab";
-                try { card.releasePointerCapture(e.pointerId); } catch { }
-                return;
-            }
-
-            const dx = e.clientX - downX;
-            const dy = e.clientY - downY;
-            const dt = performance.now() - downT;
-            if (Math.hypot(dx, dy) < 10 && dt < 300) {
-                isFlicking = true;
-                currentX = 0; currentY = 0;
-                vx = (Math.random() - 0.5) * 14;
-                vy = -6;
-                startLoop();
-            }
+            if (!isDragging) return;
+            isDragging = false;
+            card.style.cursor = isDesktop ? "grab" : "pointer";
+            try { card.releasePointerCapture(e.pointerId); } catch { }
+            startLoop();
         };
 
         card.addEventListener("pointerdown", onDown);
