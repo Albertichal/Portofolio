@@ -1,7 +1,8 @@
 "use client";
 
 // SLIDE 5 — "Let's build something" (ID card lanyard + About statement + Contact)
-// Kartu ID bisa ditarik ke kiri/kanan tembus layar dan dibatasi ke atas maksimal 2-3 cm.
+// Kartu ID bisa ditarik ke kiri/kanan tembus layar, dibatasi ke atas maksimal 2-3 cm, 
+// dan dilengkapi hard clamp agar tidak bisa jebol meski dilempar kencang.
 
 import { useLayoutEffect, useRef } from "react";
 import { useFitTitle } from "./slideUtils";
@@ -215,6 +216,14 @@ export default function Slide5() {
 
             currentX += vx;
             currentY += vy;
+
+            // --- HARD CLAMP (Pengaman Mutlak) ---
+            // Mencegah kartu jebol ke atas/bawah/samping meskipun dilempar dengan kecepatan tinggi (fling/spin)
+            if (currentX < -450) { currentX = -450; vx = 0; }
+            if (currentX > 450) { currentX = 450; vx = 0; }
+            if (currentY < -100) { currentY = -100; vy = 0; } // Batas atas maksimal 2-3 cm
+            if (currentY > 420) { currentY = 420; vy = 0; }
+
             render(currentX, currentY, isDragging);
 
             if (isDragging || Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01 || Math.abs(currentX) > 0.01 || Math.abs(currentY) > 0.01) {
@@ -268,9 +277,6 @@ export default function Slide5() {
             lastPointerX = e.clientX;
             lastPointerY = e.clientY;
 
-            // Batasan pergerakan:
-            // targetX diperlebar (-450 s.d 450) agar bisa tembus page kanan-kiri dengan mulus
-            // targetY dibatasi ke atas maksimal -100 (mentok sekitar 2-3 cm di atas section slide 5)
             targetX = Math.max(-450, Math.min(450, targetX + deltaX));
             targetY = Math.max(-100, Math.min(420, targetY + deltaY));
 
