@@ -83,9 +83,13 @@
     padding: 22px 20px 20px;
     background: rgba(244, 244, 246, 0.16);
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
-    cursor: grab;
-    touch-action: none;
     user-select: none;
+    /* cursor & touch-action SENGAJA gak diset statis di sini — dikontrol
+       lewat JS (fungsi applyTouchAction di Slide5.tsx) karena nilainya
+       beda antara desktop ("grab" / touch-action: none, biar drag gak
+       rebutan gesture browser) vs mobile ("default" / touch-action: auto,
+       biar scroll jari tetap mulus lewat area card), dan harus reaktif
+       kalau device di-resize / di-rotate lewatin breakpoint 900px. */
 }
 
 .s5-id-card::before {
@@ -223,7 +227,7 @@
 }
 
 
-/* ---- Mobile: kartu statis, lebih kecil, nempel di atas teks ---- */
+/* ---- Mobile: kartu bisa di-tap-flick (bukan drag), lebih kecil, nempel di atas teks ---- */
 
 @media (max-width: 899px) {
     .s5-inner {
@@ -234,9 +238,6 @@
         --lanyard-length: 48px;
         width: 160px;
         margin: 0 auto 40px;
-    }
-    .s5-id-card {
-        cursor: default;
     }
     .s5-title {
         font-size: clamp(2rem, 9vw, 3rem);

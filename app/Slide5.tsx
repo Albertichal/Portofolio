@@ -7,7 +7,17 @@
 // gak pernah kebalik arahnya. Titik jangkarnya diukur otomatis sampai ke
 // paling atas section (bukan cuma di atas kartu), jadi keliatan kayak
 // jaring beneran turun dari langit-langit slide.
-// Di mobile kartu dibuat statis (lihat komentar di useLayoutEffect kenapa).
+//
+// Interaksi kartu beda antara desktop & mobile, dan modenya REAKTIF (pakai
+// matchMedia "change" listener, bukan dicek sekali doang pas mount) — jadi
+// kalau window di-resize atau device di-rotate lewatin breakpoint 900px di
+// tengah sesi, behavior-nya ikut switch tanpa perlu reload halaman:
+//   - Desktop (>=900px): full drag-fisika (gravitasi + tali elastis/Hooke),
+//     pointer capture, touch-action: none biar gak rebutan gesture browser.
+//   - Mobile (<900px): kartu gak di-drag (bakal rebutan sama scroll jari),
+//     tapi tetap interaktif — sekali tap ringan (gerak kecil & cepat) bikin
+//     kartu "kesenggol" lalu spring balik ke posisi diam. touch-action
+//     dibiarin default ("auto") jadi scroll jari lewat area card tetap mulus.
 
 import { useLayoutEffect, useRef } from "react";
 import { useFitTitle } from "./slideUtils";
@@ -23,7 +33,6 @@ interface ContactItem {
     download?: string;
 }
 
-// TODO: ganti nomor WA, handle IG, dan email dengan yang asli
 const CONTACTS: ContactItem[] = [
     {
         label: "WhatsApp",
@@ -97,20 +106,10 @@ const SPOKE_CURVE = [0.3, 0.42, 0.2, 0.48, 0.32, 0.4];
 const CROSS_FRACS = [0.22, 0.4, 0.6, 0.82];
 const CROSS_JITTER = [4, -6, 3, -4, 7, -3];
 
-// Bangun path SVG jaring laba-laba: beberapa helai yang mengerucut ke titik
-// jangkar (0,0, di paling atas section) lalu melebar ke tepi atas kartu,
-// disilang sama beberapa "cincin" yang jaggy (gak lurus), plus 2 helai
-// putus pendek buat kesan robek. Semua titik dihitung dari posisi kartu
-// SEKARANG (x, y) dan panjang tali sekarang (rest), jadi jaringnya selalu
-// bener-bener ketarik ngikutin kartu — gak ada rotate() terpisah yang bisa
-// kebalik arahnya.
 function buildWebPath(x: number, y: number, rest: number) {
     const endY = rest + y;
     const spread = Math.max(20, rest * 0.34);
 
-    // "kendor": kalau jarak kartu ke titik jangkar lebih pendek dari panjang
-    // tali alaminya (misal ditarik ke atas, ngelewatin/mendekati anchor),
-    // helainya melengkung turun bikin loop longgar, bukan ketarik lurus kaku
     const cardDist = Math.hypot(x, endY);
     const slack = Math.max(0, Math.min(1, (rest - cardDist) / rest));
 
@@ -137,8 +136,6 @@ function buildWebPath(x: number, y: number, rest: number) {
         };
     };
 
-    // "cincin" penyilang: dibikin jaggy (naik-turun gak beraturan) biar gak
-    // kayak garis lurus kaku antar helai
     const crossD = CROSS_FRACS
         .map((t, row) => {
             const pts = ends.map((end, i) => pointAt(end, SPOKE_CURVE[i], t));
@@ -154,7 +151,6 @@ function buildWebPath(x: number, y: number, rest: number) {
         })
         .join(" ");
 
-    // helai putus pendek nyantol di badan jaring — detail "robek" biar makin berantakan
     const stubA = pointAt(ends[0], SPOKE_CURVE[0], 0.5);
     const stubB = pointAt(ends[5], SPOKE_CURVE[5], 0.32);
     const stubD = `M ${stubA.x.toFixed(1)} ${stubA.y.toFixed(1)} l -16 11 M ${stubB.x.toFixed(1)} ${stubB.y.toFixed(1)} l 17 -9`;
@@ -176,19 +172,22 @@ export default function Slide5() {
         const web: SVGPathElement = webRef.current;
         const svg: SVGSVGElement = svgRef.current;
         const lanyardEl = card.parentElement as HTMLElement | null;
-        const isDesktop = matchMedia("(min-width: 900px)").matches;
 
-        // currentX/currentY/isDragging dideklarasikan di scope terluar (dipakai
-        // bareng sama handler resize di kedua mode, mobile maupun desktop)
+        const mq = matchMedia("(min-width: 900px)");
+        let isDesktop = mq.matches;
+
         let isDragging = false;
-        let currentX = 0;
-        let currentY = 0;
+        let currentX = 0, currentY = 0;
+        let vx = 0, vy = 0;
         let REST = DEFAULT_REST_LENGTH;
+        let raf = 0;
+
+        let isFlicking = false;
+        let downX = 0, downY = 0, downT = 0;
+        let lastPointerX = 0;
+        let lastPointerY = 0;
 
         function measure() {
-            // ukur jarak dari paling atas .s5-inner (= paling atas Slide 5)
-            // sampai ke posisi diam kartu, biar talinya beneran mulai dari
-            // puncak section, bukan cuma dari atas kartu doang
             const inner = lanyardEl?.closest(".s5-inner") as HTMLElement | null;
             const padTop = inner ? parseFloat(getComputedStyle(inner).paddingTop) || 0 : 0;
             const gap = lanyardEl
@@ -204,76 +203,28 @@ export default function Slide5() {
             web.setAttribute("d", buildWebPath(x, y, REST));
         }
 
-        measure();
-
-        const onResize = () => {
-            measure();
-            render(currentX, currentY, isDragging);
-        };
-        window.addEventListener("resize", onResize);
-
-        // Drag cuma aktif di desktop. Di mobile kartu ini duduk di tengah alur
-        // scroll (beda dari jaring pojok Hero yang kecil & di pinggir), jadi
-        // drag pointer di sini gampang rebutan sama gesture scroll halaman —
-        // daripada berantakan, mobile dibuat statis saja. Jaringnya tetap
-        // digambar di posisi diam biar gak kosong.
-        if (!isDesktop) {
-            render(0, 0, false);
-            return () => window.removeEventListener("resize", onResize);
+        function applyTouchAction() {
+            card.style.touchAction = isDesktop ? "none" : "auto";
+            card.style.cursor = isDesktop ? "grab" : "default";
         }
 
-        let startX = 0, startY = 0;
-        let targetX = 0, targetY = 0;
-        let vx = 0, vy = 0;
-        let raf = 0;
-
-        // ================= FISIKA: gravitasi bumi + tali elastis =================
-        // Model damped harmonic oscillator (pegas teredam) beneran, BUKAN pegas
-        // yang gayanya dibatasi paksa kayak versi sebelumnya — itu penyebab bug
-        // "tiba-tiba nyentak ke tengah": gaya yang di-cap flat di angka kecil tapi
-        // dipertahankan terus tiap frame selama masih jauh dari tengah itu kayak
-        // didorong roket bertenaga konstan, bukan melambat natural kayak pegas.
-        //
-        // Analoginya di dunia nyata — beban yang digantung di tali elastis (bungee):
-        //   • Gravitasi (GRAVITY) selalu narik ke bawah, konstan, di posisi manapun.
-        //   • Gaya pegas tali (Hukum Hooke, F = -k·x) itu PROPORSIONAL sama seberapa
-        //     jauh diregangkan (makin jauh makin kuat, makin dekat makin lemah —
-        //     gak pernah mentok di satu angka), dan cuma aktif kalau tali kenceng
-        //     (diregangkan lebih dari panjang alaminya). Kalau tali kendor (kartu
-        //     di atas posisi diam), gak ada gaya pegas sama sekali → jatuh bebas.
-        //   • Redaman (damping) niru gesekan udara + kelenturan tali, bikin dia
-        //     gak mantul selamanya — tiap ayunan makin kecil sampai akhirnya diam.
-        //
-        // ω (omega) = seberapa cepat pegas "pengen" balik ke posisi diam.
-        // ζ (zeta, damping ratio) = seberapa banyak dia mantul sebelum berhenti;
-        // ζ < 1 itu "underdamped" (masih keliatan mantul dikit, natural).
         const GRAVITY = 0.6;
         const OMEGA_Y = 0.09;
         const ZETA_Y = 0.5;
         const OMEGA_X = 0.1;
         const ZETA_X = 0.6;
+        let targetX = 0, targetY = 0;
 
-        function updatePhysics() {
+        function stepDesktop() {
             if (isDragging) {
-                // pas ditarik: kartu ngikutin kursor dengan sedikit "lag" halus,
-                // gak lock 1:1, biar keliatan smooth
                 vx += (targetX - currentX) * 0.28;
                 vy += (targetY - currentY) * 0.28;
                 vx *= 0.72;
                 vy *= 0.72;
             } else {
-                // horizontal: pegas teredam biasa (kayak bandul ayun balik ke
-                // tengah), gaya & redamannya PROPORSIONAL (bukan di-cap), jadi
-                // baliknya mulus — gak ada gravitasi ke samping
                 const ax = -(OMEGA_X * OMEGA_X) * currentX - 2 * ZETA_X * OMEGA_X * vx;
                 vx += ax;
 
-                // vertical: gravitasi bumi + tali elastis (Hukum Hooke, F = -k·x).
-                // currentY < 0 artinya kartu masih di atas posisi diam (tali
-                // kendor) → jatuh bebas kena gravitasi doang, gak ada tarikan.
-                // Begitu currentY >= 0 (tali kenceng), gravitasi + gaya pegas
-                // proporsional + redaman jalan bareng, makanya mantul-mantul
-                // dulu (makin kecil tiap ayunan) sebelum akhirnya diam.
                 if (currentY < 0) {
                     vy += GRAVITY;
                     vy *= 0.995;
@@ -285,42 +236,116 @@ export default function Slide5() {
 
             currentX += vx;
             currentY += vy;
-
             render(currentX, currentY, isDragging);
-
-            raf = requestAnimationFrame(updatePhysics);
         }
-        raf = requestAnimationFrame(updatePhysics);
+
+        const TAP_OMEGA = 0.14;
+        const TAP_ZETA = 0.35;
+
+        function stepMobile() {
+            const ax = -(TAP_OMEGA * TAP_OMEGA) * currentX - 2 * TAP_ZETA * TAP_OMEGA * vx;
+            const ay = -(TAP_OMEGA * TAP_OMEGA) * currentY - 2 * TAP_ZETA * TAP_OMEGA * vy;
+            vx += ax;
+            vy += ay;
+            currentX += vx;
+            currentY += vy;
+            render(currentX, currentY, false);
+
+            if (Math.abs(vx) + Math.abs(vy) + Math.abs(currentX) + Math.abs(currentY) < 0.05) {
+                isFlicking = false;
+                currentX = 0; currentY = 0; vx = 0; vy = 0;
+                render(0, 0, false);
+            }
+        }
+
+        function updatePhysics() {
+            if (isDesktop) {
+                stepDesktop();
+                raf = requestAnimationFrame(updatePhysics);
+            } else if (isFlicking) {
+                stepMobile();
+                if (isFlicking) raf = requestAnimationFrame(updatePhysics);
+            }
+        }
+
+        function startLoop() {
+            if (!raf) raf = requestAnimationFrame(updatePhysics);
+        }
+
+        measure();
+        applyTouchAction();
+        render(0, 0, false);
+        if (isDesktop) startLoop();
+
+        const onResize = () => {
+            measure();
+            render(currentX, currentY, isDragging);
+        };
+        window.addEventListener("resize", onResize);
+
+        const onModeChange = (e: MediaQueryListEvent) => {
+            isDesktop = e.matches;
+            applyTouchAction();
+            isDragging = false;
+            isFlicking = false;
+            currentX = 0; currentY = 0; vx = 0; vy = 0;
+            render(0, 0, false);
+            cancelAnimationFrame(raf);
+            raf = 0;
+            if (isDesktop) startLoop();
+        };
+        mq.addEventListener("change", onModeChange);
 
         const onDown = (e: PointerEvent) => {
+            lastPointerX = e.clientX;
+            lastPointerY = e.clientY;
+            downX = e.clientX;
+            downY = e.clientY;
+            downT = performance.now();
+
+            if (!isDesktop) return;
+
             isDragging = true;
-            startX = e.clientX - currentX;
-            startY = e.clientY - currentY;
-            // reset target ke posisi kartu SEKARANG — sebelumnya target sisa
-            // dari drag terakhir gak direset, jadi kalau abis itu cuma
-            // klik/dobel-klik doang (tanpa gerak), fisika tetap narik ke
-            // posisi lama itu dan kartunya keliatan geser sendiri
             targetX = currentX;
             targetY = currentY;
             card.setPointerCapture(e.pointerId);
             card.style.cursor = "grabbing";
             e.preventDefault();
+            startLoop();
         };
+
         const onMove = (e: PointerEvent) => {
-            if (!isDragging) return;
-            // bebas ditarik ke segala arah termasuk ke atas, tapi dikasih
-            // batas biar tetap masuk akal (kayak tali yang ada batas
-            // panjangnya) dan gak bikin fisikanya "meledak" pas dilepas
-            targetX = Math.max(-260, Math.min(260, e.clientX - startX));
-            targetY = Math.max(-350, Math.min(420, e.clientY - startY));
+            if (!isDesktop || !isDragging) return;
+
+            const deltaX = e.clientX - lastPointerX;
+            const deltaY = e.clientY - lastPointerY;
+
+            lastPointerX = e.clientX;
+            lastPointerY = e.clientY;
+
+            targetX = Math.max(-260, Math.min(260, targetX + deltaX));
+            targetY = Math.max(-350, Math.min(420, targetY + deltaY));
         };
+
         const onUp = (e: PointerEvent) => {
-            if (!isDragging) return;
-            isDragging = false;
-            // vx/vy dari drag terakhir sengaja gak direset — biar momentum
-            // pas ngelepas kebawa ke fase jatuh (kesannya lebih hidup)
-            card.style.cursor = "grab";
-            try { card.releasePointerCapture(e.pointerId); } catch { }
+            if (isDesktop) {
+                if (!isDragging) return;
+                isDragging = false;
+                card.style.cursor = "grab";
+                try { card.releasePointerCapture(e.pointerId); } catch { }
+                return;
+            }
+
+            const dx = e.clientX - downX;
+            const dy = e.clientY - downY;
+            const dt = performance.now() - downT;
+            if (Math.hypot(dx, dy) < 10 && dt < 300) {
+                isFlicking = true;
+                currentX = 0; currentY = 0;
+                vx = (Math.random() - 0.5) * 14;
+                vy = -6;
+                startLoop();
+            }
         };
 
         card.addEventListener("pointerdown", onDown);
@@ -331,6 +356,7 @@ export default function Slide5() {
         return () => {
             cancelAnimationFrame(raf);
             window.removeEventListener("resize", onResize);
+            mq.removeEventListener("change", onModeChange);
             card.removeEventListener("pointerdown", onDown);
             card.removeEventListener("pointermove", onMove);
             card.removeEventListener("pointerup", onUp);
