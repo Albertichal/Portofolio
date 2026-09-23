@@ -1,5 +1,8 @@
 "use client";
 
+// SLIDE 5 — "Let's build something" (ID card lanyard + About statement + Contact)
+// Kartu ID bisa ditarik ke kiri/kanan tembus layar dan dibatasi ke atas maksimal 2-3 cm.
+
 import { useLayoutEffect, useRef } from "react";
 import { useFitTitle } from "./slideUtils";
 import "./slide5.css";
@@ -179,7 +182,6 @@ export default function Slide5() {
             web.setAttribute("d", buildWebPath(x, y, REST));
         }
 
-        // Izinkan touch-action: none pada kartu agar sentuhan di HP langsung mendeteksi drag
         function applyTouchAction() {
             card.style.touchAction = "none";
             card.style.cursor = isDesktop ? "grab" : "pointer";
@@ -215,7 +217,6 @@ export default function Slide5() {
             currentY += vy;
             render(currentX, currentY, isDragging);
 
-            // Terus jalankan animasi jika belum benar-benar diam di posisi awal
             if (isDragging || Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01 || Math.abs(currentX) > 0.01 || Math.abs(currentY) > 0.01) {
                 raf = requestAnimationFrame(stepPhysics);
             } else {
@@ -267,9 +268,12 @@ export default function Slide5() {
             lastPointerX = e.clientX;
             lastPointerY = e.clientY;
 
-            targetX = Math.max(-260, Math.min(260, targetX + deltaX));
-            targetY = Math.max(-350, Math.min(420, targetY + deltaY));
-            
+            // Batasan pergerakan:
+            // targetX diperlebar (-450 s.d 450) agar bisa tembus page kanan-kiri dengan mulus
+            // targetY dibatasi ke atas maksimal -100 (mentok sekitar 2-3 cm di atas section slide 5)
+            targetX = Math.max(-450, Math.min(450, targetX + deltaX));
+            targetY = Math.max(-100, Math.min(420, targetY + deltaY));
+
             startLoop();
         };
 
