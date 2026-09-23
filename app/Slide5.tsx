@@ -28,19 +28,19 @@ const CONTACTS: ContactItem[] = [
     {
         label: "WhatsApp",
         detail: "Fastest way to reach me",
-        href: "https://wa.me/62XXXXXXXXXX",
+        href: "https://wa.me/6289512484424",
         icon: "wa",
     },
     {
         label: "Instagram",
-        detail: "@username",
-        href: "https://instagram.com/username",
+        detail: "@albertichal",
+        href: "https://instagram.com/albertichal",
         icon: "ig",
     },
     {
         label: "Email",
-        detail: "hello@albertichal.my.id",
-        href: "mailto:hello@albertichal.my.id",
+        detail: "muhammadeinsteinyudhistira@gmail.com",
+        href: "mailto:muhammadeinsteinyudhistira@gmail.com",
         icon: "mail",
     },
     {
