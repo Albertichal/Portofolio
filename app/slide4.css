@@ -96,6 +96,8 @@
     background: rgba(244, 244, 246, 0.16);
     border: none;
     cursor: pointer;
+    color: var(--ink);
+    appearance: none;
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
     transition: background 0.3s ease, transform 0.3s ease;
 }
