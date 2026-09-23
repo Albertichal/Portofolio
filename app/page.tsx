@@ -605,7 +605,6 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="hero-wrap">
         <main className="hero">
 
           <div className="copy">
@@ -662,7 +661,7 @@ export default function Home() {
             <img className="fb mask" id="fbMask" alt="" />
           </div>
         </main>
-      </div>
+      <div className="hero-dwell" aria-hidden="true" />
       <Slide2 />
       <Slide3 />
       <Slide4 />
