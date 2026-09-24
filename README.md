@@ -1,7 +1,7 @@
 # Portfolio — M. Einstein Yudhistira (a.k.a AlbertIchal)
 
 > **Catatan:** README ini fokus menjelaskan **struktur project**, supaya siapapun
-> (termasuk Claude/AI) yang dilampirkan file ini bisa langsung tahu di mana harus
+> yang dilampirkan file ini bisa langsung tahu di mana harus
 > mencari/menambah kode, tanpa perlu penjelasan ulang dari nol.
 
 ---
@@ -102,10 +102,3 @@ kelimanya adalah satu halaman scroll panjang di route yang sama.
   yang perlu di-maintain manual.
 
 ---
-
-## 5. Cara Pakai README Ini untuk Update ke Depan
-
-1. Lampirkan README ini di awal chat.
-2. Lampirkan **hanya file yang relevan** dengan perubahan yang diminta (cek path lewat
-   struktur folder di atas).
-3. Kalau ada file/folder baru, dipindah, atau dihapus, **update bagian struktur folder** di sini.
