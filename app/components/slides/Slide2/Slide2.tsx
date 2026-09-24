@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Climber from "./Climber";
-import { useFitTitle } from "./slideUtils";
+import Climber from "../../Climber/Climber";
+import { useFitTitle } from "../../../lib/slideUtils";
 import "./slide2.css";
 
 const LEDE =

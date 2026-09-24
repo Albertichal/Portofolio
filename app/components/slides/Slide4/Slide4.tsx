@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useFitTitle } from "./slideUtils";
+import { useFitTitle } from "../../../lib/slideUtils";
 import "./slide4.css";
 
 type Project = {

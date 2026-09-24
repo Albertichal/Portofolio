@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import Slide2 from './Slide2';
-import Slide3 from './Slide3';
-import Slide4 from './Slide4';
-import Slide5 from './Slide5';
+import Slide2 from './components/slides/Slide2/Slide2';
+import Slide3 from './components/slides/Slide3/Slide3';
+import Slide4 from './components/slides/Slide4/Slide4';
+import Slide5 from './components/slides/Slide5/Slide5';
 
 export default function Home() {
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function Home() {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = matchMedia('(max-width: 899px)').matches;
     const $ = (s: string) => document.querySelector(s) as HTMLElement | null;
-    const stage = $('#stage'), canvas = $('#gl') as HTMLCanvasElement | null, pre = $('#pre'), hint = $('#hint');
+    const stage = $('#stage'), canvas = $('#gl') as HTMLCanvasElement | null, pre = $('#pre');
     const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
     const easeInOut = (k: number) => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
     const easeOut = (k: number) => 1 - Math.pow(1 - k, 3);
@@ -419,7 +419,6 @@ export default function Home() {
         const me = e as MouseEvent;
         if (!onPhoto(me.clientX, me.clientY)) return;
       }
-      hint?.classList.add('gone');
       if (!gl) { stage?.classList.toggle('is-mask'); return; }
       busy = true;
       st.seed = Math.random() * 100;

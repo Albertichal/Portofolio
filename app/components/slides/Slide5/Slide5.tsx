@@ -5,7 +5,7 @@
 // dan dilengkapi hard clamp agar tidak bisa jebol meski dilempar kencang.
 
 import { useLayoutEffect, useRef } from "react";
-import { useFitTitle } from "./slideUtils";
+import { useFitTitle } from "../../../lib/slideUtils";
 import "./slide5.css";
 
 type ContactIcon = "wa" | "ig" | "mail" | "download";

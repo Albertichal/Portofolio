@@ -42,17 +42,6 @@ body {
     isolation: isolate;
 }
 
-.bar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 18px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 5;
-}
-
 .copy {
     position: relative;
     z-index: 4;
@@ -197,27 +186,6 @@ h1 span {
 .nogl.is-mask .fb.face {
     opacity: 0;
 }
-
-.hint {
-    position: absolute;
-    left: 50%;
-    bottom: 1.4%;
-    translate: -50% 0;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .04em;
-    color: #fff;
-    z-index: 2;
-    opacity: .78;
-    pointer-events: none;
-    transition: opacity .4s ease;
-    white-space: nowrap;
-}
-
-.hint.gone {
-    opacity: 0;
-}
-
 
 /* Interactive Corner Elements */
 
@@ -454,8 +422,5 @@ h1 span {
         right: 3vw;
         translate: 0 0;
         width: min(58vw, 104svh);
-    }
-    .bar {
-        padding: 26px 6vw;
     }
 }
