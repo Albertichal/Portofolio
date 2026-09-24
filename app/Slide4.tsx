@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useFitTitle } from "./slideUtils";
 import "./slide4.css";
 
@@ -39,13 +40,30 @@ export default function Slide4() {
     const [activeId, setActiveId] = useState<string | null>(null);
     const active = PROJECTS.find((p) => p.id === activeId) || null;
 
+    // document belum ada saat SSR, jadi portal baru dirender setelah mount
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
+    // Escape untuk menutup + kunci scroll di html DAN body
     useEffect(() => {
         if (!active) return;
+
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") setActiveId(null);
         };
         window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
+
+        const html = document.documentElement;
+        const prevHtml = html.style.overflow;
+        const prevBody = document.body.style.overflow;
+        html.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            html.style.overflow = prevHtml;
+            document.body.style.overflow = prevBody;
+        };
     }, [active]);
 
     return (
@@ -91,47 +109,56 @@ export default function Slide4() {
                 </div>
             </div>
 
-            {/* Overlay Detail Project */}
-            <div
-                className={`s4-overlay ${active ? "is-open" : ""}`}
-                role="dialog"
-                aria-modal="true"
-                aria-hidden={!active}
-                aria-label={active?.name}
-            >
-                {active && (
-                    <div className="s4-panel">
-                        <button
-                            type="button"
-                            className="s4-close"
-                            onClick={() => setActiveId(null)}
-                            aria-label="Tutup"
-                        >
-                            ✕
-                        </button>
+            {/* Overlay Detail Project — di-portal ke body supaya keluar dari
+                stacking context .s4 dan selalu di atas Slide 5 */}
+            {mounted &&
+                createPortal(
+                    <div
+                        className={`s4-overlay ${active ? "is-open" : ""}`}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-hidden={!active}
+                        aria-label={active?.name}
+                        onClick={() => setActiveId(null)}
+                    >
+                        {active && (
+                            <div
+                                className="s4-panel"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <button
+                                    type="button"
+                                    className="s4-close"
+                                    onClick={() => setActiveId(null)}
+                                    aria-label="Tutup"
+                                >
+                                    ✕
+                                </button>
 
-                        <p className="s4-panel-tag">Project Overview</p>
-                        <h3 className="s4-panel-title">{active.name}</h3>
-                        <div className="s4-panel-stack">
-                            {active.stack.map((s) => (
-                                <span key={s} className="s4-chip">
-                                    {s}
-                                </span>
-                            ))}
-                        </div>
-                        <p className="s4-panel-readme">{active.readme}</p>
+                                <p className="s4-panel-tag">Project Overview</p>
+                                <h3 className="s4-panel-title">{active.name}</h3>
+                                <div className="s4-panel-stack">
+                                    {active.stack.map((s) => (
+                                        <span key={s} className="s4-chip">
+                                            {s}
+                                        </span>
+                                    ))}
+                                </div>
+                                <p className="s4-panel-readme">{active.readme}</p>
 
-                        <a
-                            href={active.domain}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="s4-panel-link"
-                        >
-                            {active.domain.replace("https://", "")} ↗
-                        </a>
-                    </div>
+                                <a
+                                    href={active.domain}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="s4-panel-link"
+                                >
+                                    {active.domain.replace("https://", "")} ↗
+                                </a>
+                            </div>
+                        )}
+                    </div>,
+                    document.body
                 )}
-            </div>
         </section>
     );
 }

@@ -150,12 +150,15 @@
 }
 
 
-/* ===== OVERLAY DETAIL & PANEL ===== */
+/* ===== OVERLAY DETAIL & PANEL =====
+   Overlay dirender lewat portal ke document.body (lihat Slide4.tsx),
+   jadi z-index-nya bersaing langsung dengan semua slide di level halaman. */
 
 .s4-overlay {
     position: fixed;
     inset: 0;
-    z-index: 30;
+    z-index: 1000;
+    overscroll-behavior: contain;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
