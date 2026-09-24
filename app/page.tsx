@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect } from 'react';
+import Header from './components/Header/Header';
 import Slide2 from './components/slides/Slide2/Slide2';
 import Slide3 from './components/slides/Slide3/Slide3';
 import Slide4 from './components/slides/Slide4/Slide4';
 import Slide5 from './components/slides/Slide5/Slide5';
+import { useStats } from './lib/stats';
 
 export default function Home() {
+  const stats = useStats();
   useEffect(() => {
     let alive = true; // false saat komponen unmount (aman untuk React Strict Mode)
     const SRC = { mask: "/assets/mask.webp", face: "/assets/face.webp" };
@@ -584,6 +587,8 @@ export default function Home() {
 
   return (
     <>
+      <Header views={stats ? stats.views : null} />
+
       <div className="pre" id="pre" aria-hidden="true">
         <div className="pre-mark">
           <svg className="pre-svg" viewBox="-100 -100 200 200">
@@ -593,7 +598,6 @@ export default function Home() {
                 <stop offset=".8" stopColor="#000" />
                 <stop offset="1" stopColor="#fff" />
               </radialGradient>
-              {/* Lubang di tengah: garis jaring tidak tampil di area logo (hitam = tersembunyi) */}
               <mask id="preHole" maskUnits="userSpaceOnUse" x="-300" y="-300" width="600" height="600">
                 <rect x="-300" y="-300" width="600" height="600" fill="#fff" />
                 <circle r="46" fill="url(#preHoleFade)" />
@@ -605,67 +609,66 @@ export default function Home() {
         </div>
       </div>
 
-        <main className="hero">
-
-          <div className="copy">
-            <p className="subtitle">HELLO WORLD, im Software Engineer</p>
-            <h1 style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '16px' }}>
-              <span>M.Einstein</span>
-              <span>Yudhistira</span>
-            </h1>
-            <div style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '16px', opacity: 0.9 }}>
-              A.K.A ALBERTICHAL
-            </div>
-            <p className="lede">Build robust web apps from the database core to the frontend interface</p>
+      <main className="hero" id="hero-section">
+        <div className="copy">
+          <p className="subtitle">HELLO WORLD, im Software Engineer</p>
+          <h1 style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, marginBottom: '16px' }}>
+            <span>M.Einstein</span>
+            <span>Yudhistira</span>
+          </h1>
+          <div style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '16px', opacity: 0.9 }}>
+            A.K.A ALBERTICHAL
           </div>
+          <p className="lede">Build robust web apps from the database core to the frontend interface</p>
+        </div>
 
-          <div className="interactive-corner c-tr" title="Tarik dan geser aku!">
-            <div className="cw" style={{ '--dur': '2s', '--del': '0s', '--dir': 'normal', '--wr': '0deg', '--sx': '52%', '--sy': '50%', '--rot': '0deg' } as React.CSSProperties}>
-              <div className="cw-web"></div>
-              <div className="cw-spider"></div>
-            </div>
+        <div className="interactive-corner c-tr" title="Tarik dan geser aku!">
+          <div className="cw" style={{ '--dur': '2s', '--del': '0s', '--dir': 'normal', '--wr': '0deg', '--sx': '52%', '--sy': '50%', '--rot': '0deg' } as React.CSSProperties}>
+            <div className="cw-web"></div>
+            <div className="cw-spider"></div>
           </div>
+        </div>
 
-          <div className="interactive-corner c-mr" title="Tarik dan geser aku!">
-            <div className="cw" style={{ '--dur': '3s', '--del': '-.5s', '--dir': 'reverse', '--wr': '10deg', '--sx': '50%', '--sy': '50%', '--rot': '-160deg' } as React.CSSProperties}>
-              <div className="cw-web"></div>
-              <div className="cw-spider"></div>
-            </div>
+        <div className="interactive-corner c-mr" title="Tarik dan geser aku!">
+          <div className="cw" style={{ '--dur': '3s', '--del': '-.5s', '--dir': 'reverse', '--wr': '10deg', '--sx': '50%', '--sy': '50%', '--rot': '-160deg' } as React.CSSProperties}>
+            <div className="cw-web"></div>
+            <div className="cw-spider"></div>
           </div>
+        </div>
 
-          <div className="interactive-corner c-ml" title="Tarik dan geser aku!">
-            <div className="cw" style={{ '--dur': '2s', '--del': '-3s', '--dir': 'normal', '--wr': '30deg', '--sx': '50%', '--sy': '50%', '--rot': '25deg', '--ss': '34%' } as React.CSSProperties}>
-              <div className="cw-web"></div>
-              <div className="cw-spider"></div>
-            </div>
+        <div className="interactive-corner c-ml" title="Tarik dan geser aku!">
+          <div className="cw" style={{ '--dur': '2s', '--del': '-3s', '--dir': 'normal', '--wr': '30deg', '--sx': '50%', '--sy': '50%', '--rot': '25deg', '--ss': '34%' } as React.CSSProperties}>
+            <div className="cw-web"></div>
+            <div className="cw-spider"></div>
           </div>
+        </div>
 
-          <div className="interactive-corner c-bl" title="Tarik dan geser aku!">
-            <div className="cw" style={{ '--dur': '6.2s', '--del': '-1s', '--dir': 'reverse', '--wr': '-15deg', '--sx': '48%', '--sy': '52%', '--rot': '-35deg' } as React.CSSProperties}>
-              <div className="cw-web"></div>
-              <div className="cw-spider"></div>
-            </div>
+        <div className="interactive-corner c-bl" title="Tarik dan geser aku!">
+          <div className="cw" style={{ '--dur': '6.2s', '--del': '-1s', '--dir': 'reverse', '--wr': '-15deg', '--sx': '48%', '--sy': '52%', '--rot': '-35deg' } as React.CSSProperties}>
+            <div className="cw-web"></div>
+            <div className="cw-spider"></div>
           </div>
+        </div>
 
-          <div className="interactive-corner c-br" title="Tarik dan geser aku!">
-            <div className="cw" style={{ '--dur': '5.5s', '--del': '-2s', '--dir': 'reverse', '--wr': '20deg', '--sx': '50%', '--sy': '50%', '--rot': '180deg' } as React.CSSProperties}>
-              <div className="cw-web"></div>
-              <div className="cw-spider"></div>
-            </div>
+        <div className="interactive-corner c-br" title="Tarik dan geser aku!">
+          <div className="cw" style={{ '--dur': '5.5s', '--del': '-2s', '--dir': 'reverse', '--wr': '20deg', '--sx': '50%', '--sy': '50%', '--rot': '180deg' } as React.CSSProperties}>
+            <div className="cw-web"></div>
+            <div className="cw-spider"></div>
           </div>
+        </div>
 
-          <div className="stage" id="stage" role="button" tabIndex={0} aria-label="Ganti antara foto bertopeng dan foto wajah">
-            <svg className="web" id="bgWeb" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
-            <canvas id="gl"></canvas>
-            <img className="fb face" id="fbFace" alt="" />
-            <img className="fb mask" id="fbMask" alt="" />
-          </div>
-        </main>
+        <div className="stage" id="stage" role="button" tabIndex={0} aria-label="Ganti antara foto bertopeng dan foto wajah">
+          <svg className="web" id="bgWeb" viewBox="-100 -100 200 200" aria-hidden="true"></svg>
+          <canvas id="gl"></canvas>
+          <img className="fb face" id="fbFace" alt="" />
+          <img className="fb mask" id="fbMask" alt="" />
+        </div>
+      </main>
       <div className="hero-dwell" aria-hidden="true" />
-      <Slide2 />
-      <Slide3 />
-      <Slide4 />
-      <Slide5 />
+      <div id="slide2"><Slide2 /></div>
+      <div id="slide3"><Slide3 /></div>
+      <div id="slide4"><Slide4 /></div>
+      <div id="slide5"><Slide5 /></div>
     </>
   );
 }

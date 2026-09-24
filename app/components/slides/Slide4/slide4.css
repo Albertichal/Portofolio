@@ -132,8 +132,28 @@
     margin-top: 18px;
 }
 
+
+/* Jumlah like di kartu — monokrom, dibedakan lewat opacity, bukan warna */
+
+.s4-card-likes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.s4-card-likes.is-liked {
+    opacity: 1;
+}
+
 .s4-card-cta {
-    margin-top: 22px;
+    margin-top: 16px;
     font-size: 0.78rem;
     letter-spacing: 0.02em;
     opacity: 0.6;
@@ -147,6 +167,49 @@
     border: 1px solid var(--line);
     border-radius: 999px;
     opacity: 0.85;
+}
+
+
+/* ===== HATI + JARING MENGELILINGI ===== */
+
+.s4-heart {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+}
+
+.s4-heart-web {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.s4-heart-icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: fill 0.2s ease;
+}
+
+.s4-card-likes.is-liked .s4-heart-icon,
+.s4-like.is-liked .s4-heart-icon {
+    fill: currentColor;
+}
+
+.s4-card-likes.is-liked .s4-heart-web,
+.s4-like.is-liked .s4-heart-web {
+    opacity: 0.9;
 }
 
 
@@ -267,10 +330,20 @@
     opacity: 0.8;
 }
 
+
+/* Baris aksi: tombol like + link domain */
+
+.s4-panel-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 26px;
+}
+
 .s4-panel-link {
     display: inline-block;
     width: max-content;
-    margin-top: 26px;
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--ink);
@@ -278,11 +351,59 @@
     text-underline-offset: 4px;
 }
 
+.s4-like {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.s4-like:hover {
+    transform: translateY(-1px);
+    border-color: rgba(244, 244, 246, 0.4);
+}
+
+.s4-like:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.s4-like.is-liked {
+    background: rgba(244, 244, 246, 0.1);
+    border-color: rgba(244, 244, 246, 0.5);
+}
+
+/* di tombol like panel, hati + jaring sedikit lebih besar */
+.s4-like .s4-heart {
+    width: 40px;
+    height: 40px;
+}
+
+.s4-like .s4-heart-icon {
+    width: 17px;
+    height: 17px;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .s4-panel {
         animation: none !important;
         opacity: 1 !important;
         scale: 1 !important;
+    }
+    .s4-like,
+    .s4-heart-web,
+    .s4-heart-icon,
+    .s4-card-likes {
+        transition: none;
     }
 }
 
