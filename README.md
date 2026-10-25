@@ -1,104 +1,182 @@
 # Portfolio — M. Einstein Yudhistira (a.k.a AlbertIchal)
 
-> **Catatan:** README ini fokus menjelaskan **struktur project**, supaya siapapun
-> yang dilampirkan file ini bisa langsung tahu di mana harus
-> mencari/menambah kode, tanpa perlu penjelasan ulang dari nol.
+A Spider-Man themed personal portfolio built with **Next.js (App Router) + TypeScript**.
+It is a single-route, scroll-driven page: five full-screen slides stack on top of each other
+as you scroll, with a WebGL hero, an anonymous visitor counter, and per-project likes.
+
+Source: [github.com/Albertichal/Portofolio](https://github.com/Albertichal/Portofolio)
 
 ---
 
-## 1. Ringkasan Project
+## Features
 
-Portofolio pribadi bertema **Spider-Man**, dibangun dengan **Next.js (App Router) + TypeScript**.
-Formatnya **scroll-based single page**: satu route (`/`) berisi 5 "slide" full-screen yang
-saling menimpa (stacking transition) saat di-scroll — bukan carousel/multi-route.
-
-- **Bahasa kode/komentar:** komentar teknis di JS/CSS ditulis dalam **Bahasa Indonesia**
-  (bahasa kerja owner); konten yang tampil ke user (headline, deskripsi) dalam **Bahasa Inggris**.
-- **Styling:** CSS murni per-komponen, tidak pakai Tailwind meskipun tercantum di `package.json`
-  (lihat catatan di bagian 4).
+- **Stacking slide layout.** One route (`/`), five slides that overlap using `position: sticky`. No carousel, no multi-route.
+- **WebGL hero.** A custom fragment shader dissolves between a masked and an unmasked portrait. Moving the cursor "scratches" through to the previous photo with a shard-shaped trail.
+- **Hit-tested interaction.** Hover, click, and touch effects only react on visible photo pixels, so empty areas stay scrollable on mobile.
+- **Draggable web corners.** Five spider-web corners with spring physics you can grab and fling.
+- **Generated preloader.** The web is drawn from code (SVG stroke animation), not an image.
+- **Burger menu navigation.** Jump to any slide, in either direction.
+- **Anonymous stats.** Page view counter and per-project likes backed by Supabase. No login, no IP or user agent stored.
+- **Reduced motion support.** Honors `prefers-reduced-motion`.
 
 ---
 
-## 2. Tech Stack
+## Tech Stack
 
-| Bagian | Teknologi |
+| Area | Technology |
 |---|---|
-| Framework | Next.js (App Router), hampir semua komponen `"use client"` |
-| Bahasa | TypeScript (TSX) |
-| Styling | CSS biasa, satu file `.css` per komponen/slide |
-| Grafis interaktif | SVG manual (animasi laba-laba/jaring), **WebGL custom shader** (dissolve foto di Hero), Canvas 2D (jejak kursor) |
-| Font | `Geist` / `Geist Mono` via `next/font` di `layout.tsx`; `Big Shoulders Display` & `Archivo` sebagai CSS variable di `globals.css` |
+| Framework | Next.js 16 (App Router), React 19 |
+| Language | TypeScript |
+| Styling | Plain CSS, one `.css` file per component or slide |
+| Graphics | Hand-written SVG, WebGL 1 shader (hero), Canvas 2D (cursor trail) |
+| Backend | Supabase (Postgres + RPC) for views and likes |
+| Fonts | Geist / Geist Mono via `next/font`; Big Shoulders Display and Archivo as CSS variables in `globals.css` |
+| Deploy | Vercel |
+
+Tailwind v4 is installed (`tailwindcss`, `@tailwindcss/postcss`) but **not active**: no stylesheet
+imports it, so the Tailwind classes in `layout.tsx` currently produce no styles. Either add
+`@import "tailwindcss";` to `globals.css` or remove the dependency and those classes.
 
 ---
 
-## 3. Struktur Folder
+## Getting Started
+
+```bash
+git clone https://github.com/Albertichal/Portofolio.git
+cd Portofolio
+npm install
+```
+
+Create `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
+
+Run it:
+
+```bash
+npm run dev      # http://localhost:3000
+npm run build
+npm run start
+```
+
+If the Supabase variables are missing or the requests fail, the site still works: the view
+counter and like counts simply stay hidden.
+
+---
+
+## Project Structure
 
 ```
 Portofolio/
 ├── app/
-│   ├── layout.tsx                     # Root layout: load font Geist, metadata SEO
-│   ├── page.tsx                       # Route "/" — Slide 1 (Hero) + merender Slide2–5
-│   ├── globals.css                    # Variabel warna/font global + reset + style Hero
-│   ├── favicon.ico
+│   ├── layout.tsx                # Root layout: Geist fonts, SEO metadata
+│   ├── page.tsx                  # Route "/": preloader + Hero (slide 1) + renders Slide2–5
+│   ├── globals.css               # Design tokens, reset, Hero + preloader styles
 │   │
 │   ├── components/
+│   │   ├── Header/
+│   │   │   ├── Header.tsx        # Burger menu, slide navigation, view-count pill
+│   │   │   └── header.css
 │   │   ├── Climber/
-│   │   │   ├── Climber.tsx            # Komponen SVG "Spider-Man memanjat benang"
-│   │   │   └── climber.css            #   (transisi antar slide, dipakai di Slide2 & Slide3)
-│   │   │
+│   │   │   ├── Climber.tsx       # SVG "Spider-Man climbing a thread" transition (shared)
+│   │   │   └── climber.css
 │   │   └── slides/
-│   │       ├── Slide2/
-│   │       │   ├── Slide2.tsx         # "The Journey So Far" — skills, tools, stats
-│   │       │   └── slide2.css
-│   │       ├── Slide3/
-│   │       │   ├── Slide3.tsx         # Timeline karier/edukasi 2023–2026
-│   │       │   └── slide3.css
-│   │       ├── Slide4/
-│   │       │   ├── Slide4.tsx         # "Selected Work" — showcase project lain
-│   │       │   └── slide4.css
-│   │       └── Slide5/
-│   │           ├── Slide5.tsx         # "Let's build something" — ID card lanyard + kontak
-│   │           └── slide5.css
-│   │
+│   │       ├── Slide2/           # "The Journey So Far": skills, tools, stats
+│   │       ├── Slide3/           # Timeline, 2023–2026
+│   │       ├── Slide4/           # "Selected Work": projects + like buttons
+│   │       └── Slide5/           # "Let's build something": lanyard ID card + contact
+│   │                             #   (each folder holds SlideN.tsx + slideN.css)
 │   └── lib/
-│       └── slideUtils.ts              # Hook bersama useFitTitle() — auto-resize judul,
-│                                       #   dipakai Slide2, Slide3, Slide4 & Slide5
+│       ├── slideUtils.ts         # useFitTitle(): auto-resizes slide titles (Slides 2–5)
+│       └── stats.ts              # Supabase client, useStats(), useLikes()
 │
 ├── public/
-│   ├── assets/                        # Foto & aset pribadi (lihat isi folder langsung)
-│   └── *.svg                          # Ikon bawaan scaffolding Next.js (belum dipakai)
+│   └── assets/                   # mask.webp, face.webp, web.webp, spider.webp, logo.png, ...
 │
-├── AGENTS.md                          # Auto-generated oleh Next.js dev, bukan dokumentasi manual
-└── ...config files (next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs)
+└── ...config (next.config.ts, tsconfig.json, eslint.config.mjs, postcss.config.mjs)
 ```
 
-**Kenapa dikelompokkan begini:**
-- `page.tsx` tetap di root `app/` karena itu **file route** Next.js (wajib bernama `page.tsx`
-  di situ) — sekaligus berisi Slide 1 (Hero), yang paling erat dengan logic root.
-- `components/Climber/` dipisah dari `components/slides/` karena `Climber` adalah komponen
-  **shared** (dipakai ulang di beberapa slide), bukan bagian dari satu slide tertentu.
-- Tiap slide punya folder sendiri (`Slide2/`, `Slide3/`, dst) berisi `.tsx` + `.css`-nya,
-  supaya kalau nambah bagian baru di slide tertentu, semua filenya sudah satu tempat.
-- `lib/` untuk hook/util yang dipakai lintas komponen (bukan spesifik satu slide).
-
-**Alur render:** `page.tsx` → `<Slide2 />` → `<Slide3 />` → `<Slide4 />` → `<Slide5 />`,
-kelimanya adalah satu halaman scroll panjang di route yang sama.
+`AGENTS.md` is regenerated by `next dev`; it is not hand-maintained documentation.
 
 ---
 
-## 4. Hal yang Perlu Diketahui / Dicek
+## How It Works
 
-- **CV belum ada filenya:** tombol "Download CV" di Slide5 (`app/components/slides/Slide5/Slide5.tsx`)
-  menunjuk ke `/assets/cv-einstein.pdf`, tapi file itu **belum ada** di `public/assets/`.
-  Tombol akan 404 sampai file PDF-nya ditambahkan.
-- **Tailwind terpasang tapi tidak aktif:** `tailwindcss` ada di `package.json` dan
-  `postcss.config.mjs`, tapi tidak ada `@import "tailwindcss";` di file CSS manapun.
-  Akibatnya class Tailwind di `layout.tsx` (`min-h-full`, `flex`, `flex-col`, `h-full`,
-  `antialiased`) **tidak menghasilkan style apapun** saat ini. Kalau memang mau pakai
-  Tailwind, tambahkan importnya; kalau tidak, class-class itu & dependency Tailwind bisa dilepas.
-- **Climber belum dipasang di Slide4 & Slide5** — transisi panjat laba-laba baru ada di
-  antara Slide2 → Slide3.
-- **`AGENTS.md`** adalah file yang otomatis ditulis ulang oleh `next dev`, bukan dokumentasi
-  yang perlu di-maintain manual.
+### Render order
+
+```
+<Header />
+<div #pre>            preloader (fixed overlay, fades out)
+<main #hero-section>  slide 1, sticky
+<div .hero-dwell>     50vh spacer so the hero lingers
+<div #slide2>         <Slide2 />   (display: contents)
+<div #slide3>         <Slide3 />
+<div #slide4>         <Slide4 />
+<div #slide5>         <Slide5 />
+```
+
+`page.tsx` is a client component. All hero logic lives in one large `useEffect` in that file:
+WebGL setup, the dissolve shader, cursor trail, hit map, draggable corners, headline fitting,
+and the preloader sequence. Everything is cleaned up in the effect's return function (safe under
+React Strict Mode).
+
+### Hero internals
+
+- **Dissolve:** the fragment shader mixes `uMask` and `uFace` using an fBm noise threshold driven by `uP` (0 → 1). A glowing edge band follows the threshold.
+- **Cursor trail:** a 256×256 Canvas 2D redraws short-lived polygon "shards" every frame (alpha fades linearly to 0), uploaded as the `uTrail` texture. The shader uses it to reveal the *previous* photo under the cursor.
+- **Photo parallax:** the portrait shifts slightly toward the pointer (`SHIFT`), easing over time.
+- **Hit map (`onPhoto`)**: a 128×128 alpha map built from the two photos. Pointer and touch handlers consult it, so only real photo pixels trigger effects. On touch devices the scroll is blocked only when the finger starts on the photo.
+- **Idle glitch:** every few seconds the hero plays a small re-dissolve to feel alive.
+- **No-WebGL fallback:** if context creation fails, plain `<img>` elements (`#fbFace`, `#fbMask`) and CSS classes (`.nogl`, `.is-mask`) take over.
+- **Headline sizing:** `fitHeadline()` writes `font-size` straight onto the `<h1>`, so the CSS `font-size` has no effect. Tune mobile size with `MOBILE_WIDTH_RATIO` and `MOBILE_MAX_PX` in `page.tsx`.
+
+### Navigation and `position: sticky`
+
+Slides are sticky, so an element that is currently pinned reports a viewport-relative position,
+not its real place in the document. This breaks `scrollIntoView()` and
+`getBoundingClientRect().top + scrollY` when scrolling **upward**: the target looks like it is
+already there and nothing moves.
+
+`Header.tsx` avoids this with `flowTop()`, which sums the heights of all preceding siblings up the
+DOM tree (elements with `display: contents` are expanded into their children). Home is a plain
+`scrollTo(0)`.
+
+When adding a slide:
+
+1. Wrap it in a `<div id="slideN">` in `page.tsx`.
+2. Register it in `NAV_ITEMS` in `Header.tsx`.
+3. Do not replace `goTo()` with `scrollIntoView`.
+
+### Stats (Supabase)
+
+`app/lib/stats.ts` creates a Supabase client without auth (`persistSession: false`) and identifies
+visitors with an anonymous UUID stored in `localStorage` (`visitor_id`).
+
+| RPC | Purpose |
+|---|---|
+| `register_view(p_visitor)` | Records a visit (once per visitor) |
+| `get_stats(p_visitor)` | Returns `{ views, likes: Record<projectId, number>, mine: string[] }` |
+| `toggle_like(p_project, p_visitor)` | Toggles a like, returns `{ liked, total }` |
+
+- `useStats()` shares a single fetch between the Header and Slide 4.
+- `useLikes()` applies optimistic updates with rollback, and blocks double clicks per project.
+- A `null` result means "not ready or failed", and the UI hides the numbers instead of showing zeros.
 
 ---
+
+## Conventions
+
+- **Language:** code comments are in Indonesian; all visitor-facing copy is in English.
+- **Styling:** one CSS file per component or slide, using the tokens in `globals.css` (`--paper`, `--ink`, `--line`, `--display`, `--text`).
+- **Client components:** almost everything is `"use client"` because of scroll, WebGL, and pointer logic.
+- **Assets:** keep images in `public/assets/`; prefer `.webp`.
+
+---
+
+## Known Notes
+
+- The `Climber` transition currently sits between Slide 2 and Slide 3 only; Slides 4 and 5 do not use it yet.
+- Tailwind is installed but inactive (see Tech Stack).
