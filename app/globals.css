@@ -456,3 +456,7 @@ h1 span {
         width: min(58vw, 104svh);
     }
 }
+
+#slide2 {
+    display: contents;
+}
